@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+data/cache
+data/external/*/
+results/**/*.pt
+results/_superseded/
+logs/
+figures/
+*.npy

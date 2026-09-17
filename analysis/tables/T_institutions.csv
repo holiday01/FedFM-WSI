@@ -1,0 +1,59 @@
+institution,tss_clients,slides,cancer_types,cancers
+Indivumed,4,644,4,BRCA;COAD;LUAD;STAD
+Asterand,8,462,8,BRCA;CESC;COAD;HNSC;LUAD;PAAD;SKCM;STAD
+University of Pittsburgh,6,414,6,BRCA;COAD;HNSC;LUAD;SKCM;STAD
+Case Western,2,352,1,LGG
+Greater Poland Cancer Center,5,241,5,BRCA;COAD;HNSC;SKCM;STAD
+International Genomics Consortium,7,237,7,BRCA;CESC;COAD;HNSC;LUAD;PAAD;STAD
+Christiana Healthcare,3,234,3,BRCA;COAD;LUAD
+MD Anderson,3,193,3,BRCA;HNSC;LGG
+MSKCC,3,175,3,BRCA;COAD;LGG
+Walter Reed,1,170,1,BRCA
+Roswell Park,3,161,3,BRCA;COAD;LUAD
+Mayo,2,142,2,BRCA;LGG
+ILSBio,3,140,3,BRCA;COAD;STAD
+Barretos Cancer Hospital,3,139,3,CESC;HNSC;STAD
+Duke,2,122,2,BRCA;LGG
+Cureline,3,110,3,BRCA;LGG;SKCM
+Johns Hopkins,2,103,2,HNSC;LUAD
+University of Sydney,1,87,1,SKCM
+Henry Ford Hospital,1,86,1,LGG
+Huntsman Cancer Institute,1,70,1,LGG
+UNC,4,69,4,BRCA;COAD;HNSC;LUAD
+Medical College of Wisconsin,1,62,1,CESC
+University of Miami,2,56,2,BRCA;HNSC
+Dept of Neurosurgery at University of Heidelberg,1,48,1,LGG
+University Of Michigan,2,42,2,COAD;HNSC
+Alberta Health Services,1,39,1,PAAD
+"University Health Network, Toronto",1,38,1,HNSC
+National Cancer Center Korea,1,37,1,STAD
+Prince Charles Hospital,1,31,1,LUAD
+UCSF,1,28,1,BRCA
+Ontario Institute for Cancer Research (OICR),2,27,2,LUAD;STAD
+The University of New South Wales,1,26,1,LGG
+Harvard,1,24,1,COAD
+Washington University - NYU,1,23,1,LUAD
+University of Chicago,1,23,1,BRCA
+Yale,1,23,1,SKCM
+Emory University - Winship Cancer Inst.,1,22,1,HNSC
+Fondazione-Besta,1,21,1,LGG
+Thomas Jefferson University,1,20,1,LGG
+Candler,1,19,1,BRCA
+Washington University - Mayo Clinic,1,19,1,LUAD
+University of Sao Paulo,1,18,1,LGG
+Mayo Clinic,1,17,1,PAAD
+Moffitt Cancer Center,1,17,1,PAAD
+NCI HRE Branch,1,16,1,CESC
+Washington University - Cleveland Clinic,1,15,1,LUAD
+Fred Hutchinson,1,15,1,HNSC
+University of Florida,1,15,1,LGG
+Providence Portland Medical Center,1,14,1,PAAD
+Peter MacCallum Cancer Center,1,14,1,STAD
+Montefiore Medical Center,1,12,1,CESC
+Fox Chase,1,12,1,LUAD
+Washington University - Emory,1,11,1,LUAD
+Cedars Sinai,1,11,1,CESC
+University of Oklahoma HSC,1,11,1,CESC
+University of North Carolina,1,11,1,SKCM
+Roswell,1,10,1,SKCM
+Albert Einstein Medical Center,1,10,1,BRCA

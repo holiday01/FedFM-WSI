@@ -1,0 +1,392 @@
+{
+ "main_adam": {
+  "CTransPath|FedAvg": "12daaeca7427;32a772496af8;50f762435343;7738a2a860f9;f50b74fada36",
+  "CTransPath|FedBN": "13dca61c2e7b;a57e83341258;ca6bc4d0257f;e5a69ce83519;fa6456e49b0d",
+  "CTransPath|FedProx": "3477df5ada8e;86d9a1f49249;b34a5a20b297;b56114aff14e;b8b9ed836ded",
+  "CTransPath|SCAFFOLD": "0c2de4b117ea;1704e4e2c0b4;a39c4b54a6e8;c579fee87e49;dfeaaba2a152",
+  "Conch_v15|FedAvg": "48190d037628;d2f6dc6d9c3c;d4b7e81ed792;e19c6698855b;e9ec436f1537",
+  "Conch_v15|FedBN": "1557c7a7906a;8b100caf83b6;c7689d50a4f8;c9aab31cf9a3;fa7f8c47e676",
+  "Conch_v15|FedProx": "37d13a3ef0d4;4165e5420dbd;436e0bd160a2;4a8376235f13;6aa46c83e5d6",
+  "Conch_v15|SCAFFOLD": "199825691cd4;4ede3d457bf2;9d43e6a71f7e;d86ab20c44a8;e2ea4c497fc5",
+  "Midnight12k|FedAvg": "98682d75851d;bf0bc8796eaf;e39eebe634b2;e6bfe1e480c3;e85ffbca4a02",
+  "Midnight12k|FedBN": "475a3ae67c32;537b66a83da0;6f61b239bcd5;75b34035cf85;e93082905d72",
+  "Midnight12k|FedProx": "03bf2eb1ffc0;32806e51dfc2;7ac7250be8fd;81a0727a2df7;e0d237945e42",
+  "Midnight12k|SCAFFOLD": "398b2ae6a86e;579d0d8b2ae1;e2e111f122c0;e3e9de52db68;f0cd4cba3de6",
+  "Phikon_v2|FedAvg": "2c623ed62b3e;3b37663a7e81;662ac1205a75;dddf2cc47b23;f55bec47e7d6",
+  "Phikon_v2|FedBN": "1c18bec810f7;27f59f291cdd;396f6d56493e;4fb8cd166f89;ac8964d6758d",
+  "Phikon_v2|FedProx": "3161a909ff1b;432d7850ca0d;53e2821f31c1;6fb26627e29b;c72b75ed9602",
+  "Phikon_v2|SCAFFOLD": "010c7099aed8;06f6497300e9;43a8b116149c;4d145b3c2108;7f6b7b073de0",
+  "ResNet50|FedAvg": "067a3419309c;091928446a9e;18e6cd33ace3;4bfc9890faa7;6d80ac1e6e47",
+  "ResNet50|FedBN": "1d0b9d045440;35fa909c0058;5d384710ffa0;642b9b28c0df;9ddb79bc90ed",
+  "ResNet50|FedProx": "878703b5524f;a6d0e02a35c4;b5a842dbbac0;dfd9b91dd737;e51433dfe1ab",
+  "ResNet50|SCAFFOLD": "0f86af7e3f8e;39a58cf8f83a;41be0d44dbe0;548bd193d7c2;6166d4c38245",
+  "UNI_v2|FedAvg": "11e125f45a47;2a7f83531c92;5d90f00fc564;62e4c3d52ab4;dfbb2265cba3",
+  "UNI_v2|FedBN": "37beaef79259;65eefe123306;af42c2953a45;c96140503b89;d536ceca8974",
+  "UNI_v2|FedProx": "05649fcd3a0b;3640e6c45e9f;4ff0a8508e13;d9fd4a73bca1;ef42a9a1c1a4",
+  "UNI_v2|SCAFFOLD": "3d8d3cc0aee2;8e32388cb77d;8f17c79f9637;a2b6fcfe0b48;d3435ac5a309",
+  "Virchow2|FedAvg": "0eb036fbf6f4;40e1aa913b7b;8ff3d0bb92a5;9548ae04f543;db6dbe22658a",
+  "Virchow2|FedBN": "6116b1a17d64;657bf22c6260;7addfaf557a5;c7b87e0207ce;ea7a06666b0e",
+  "Virchow2|FedProx": "0a193deaeab9;0f79337e2ef8;3b6fbe47a777;5c0f47490940;7608fdc20f0d",
+  "Virchow2|SCAFFOLD": "301817e160ed;5ebcabd649f0;6343b811ad8c;c4e1d86e5fc4;c8ccb1400c71"
+ },
+ "main_adam_sel": {
+  "CTransPath|FedAvg": {
+   "lr": 0.001,
+   "keys": "2a4d4dd08651;5d65d0ff9423;7e7d49b9fe39;91decd71d136;b2d74d7c2571"
+  },
+  "CTransPath|FedBN": {
+   "lr": 0.001,
+   "keys": "240467136a3d;2bdd87889b88;4cee0c25778b;7117710b713d;b3801572cd6f"
+  },
+  "CTransPath|FedProx": {
+   "lr": 0.001,
+   "keys": "0ca449c57e0f;334b8b7598a0;5cf32174760f;7710831e5020;b99f40d99703"
+  },
+  "CTransPath|SCAFFOLD": {
+   "lr": 0.001,
+   "keys": "2e28420b68dd;54fce278a535;5dce7d0ee33f;a14015d42f16;f24e3644f579"
+  },
+  "Conch_v15|FedAvg": {
+   "lr": 0.001,
+   "keys": "0b21fd98af8b;186a3605e0a6;36677079b903;b982f67a3338;d188ba86f420"
+  },
+  "Conch_v15|FedBN": {
+   "lr": 0.001,
+   "keys": "507c9b21fed3;57309b796771;64a1148c40b8;7bd8ddfde1eb;dcf71c5c05ef"
+  },
+  "Conch_v15|FedProx": {
+   "lr": 0.001,
+   "keys": "2f625e906542;4b9372680915;83785a338b3c;aea1de079d4a;e55bfd997f74"
+  },
+  "Conch_v15|SCAFFOLD": {
+   "lr": 0.001,
+   "keys": "2d8654ccddef;3d04a54622a2;c7148f3d4b3a;ecdcc3fc6dd2;fc468cbb457d"
+  },
+  "Midnight12k|FedAvg": {
+   "lr": 0.001,
+   "keys": "030793e6a252;07bdbb0c4dfd;2716dff5dc01;9c1d06d9eaa3;edaf08d32ad7"
+  },
+  "Midnight12k|FedBN": {
+   "lr": 0.0003,
+   "keys": "475a3ae67c32;537b66a83da0;6f61b239bcd5;75b34035cf85;e93082905d72"
+  },
+  "Midnight12k|FedProx": {
+   "lr": 0.001,
+   "keys": "4c64af4c59ba;557feed093d9;7c94469a84f3;ecaf549a2066;fc700cc9809a"
+  },
+  "Midnight12k|SCAFFOLD": {
+   "lr": 0.001,
+   "keys": "12c99ace03ad;3f3a4bc18866;48946f684917;8e299fbf9e13;95cd386b0cf9"
+  },
+  "Phikon_v2|FedAvg": {
+   "lr": 0.001,
+   "keys": "03db9ffd37d3;1f9a66b0f97f;779ecd016a02;c79f385f4bdd;d0b14c38a3a8"
+  },
+  "Phikon_v2|FedBN": {
+   "lr": 0.001,
+   "keys": "11106474f2ff;56bd2bd5cb28;70435c3efc5f;ab7c9e7f96cf;ca2651d63fd6"
+  },
+  "Phikon_v2|FedProx": {
+   "lr": 0.001,
+   "keys": "0ff8e8d0ba2f;77f636cb4e24;b05feedf56b9;d131e73e52a6;d39586f56275"
+  },
+  "Phikon_v2|SCAFFOLD": {
+   "lr": 0.001,
+   "keys": "2e9bfef9790b;68c786bb61b9;73f493ce96d2;b6c3f5175d50;d0162b33197f"
+  },
+  "ResNet50|FedAvg": {
+   "lr": 0.0003,
+   "keys": "067a3419309c;091928446a9e;18e6cd33ace3;4bfc9890faa7;6d80ac1e6e47"
+  },
+  "ResNet50|FedBN": {
+   "lr": 0.001,
+   "keys": "3ee357f418d6;5a472983db3f;add622635557;ba60aabd9778;d47c9ecc30bd"
+  },
+  "ResNet50|FedProx": {
+   "lr": 0.001,
+   "keys": "32af25938bae;5ad0d9f9e760;65a93cc2d4d6;88321ca64763;fce14358a77c"
+  },
+  "ResNet50|SCAFFOLD": {
+   "lr": 0.001,
+   "keys": "06e5f0ca3354;278ae6f11d9c;40078aa5f4b1;4dec1e42f18c;9c2f197d5d8c"
+  },
+  "UNI_v2|FedAvg": {
+   "lr": 0.001,
+   "keys": "6ce3c5432eeb;8d8d2878a809;a6c061172214;aa4a4692692e;eca6c6c48cc9"
+  },
+  "UNI_v2|FedBN": {
+   "lr": 0.001,
+   "keys": "1b59894cb03d;530263548188;832c121a9281;cdc98ed3d8ee;d4c918a4088d"
+  },
+  "UNI_v2|FedProx": {
+   "lr": 0.001,
+   "keys": "002b7dc9be06;2b2ddddd1139;9140e462e91e;98fd8992bd99;a77350074ae8"
+  },
+  "UNI_v2|SCAFFOLD": {
+   "lr": 0.0003,
+   "keys": "3d8d3cc0aee2;8e32388cb77d;8f17c79f9637;a2b6fcfe0b48;d3435ac5a309"
+  },
+  "Virchow2|FedAvg": {
+   "lr": 0.001,
+   "keys": "1e1ff6af722f;47c47c38ce01;53a6b2491415;59a165fee2d9;f5d853df2298"
+  },
+  "Virchow2|FedBN": {
+   "lr": 0.0003,
+   "keys": "6116b1a17d64;657bf22c6260;7addfaf557a5;c7b87e0207ce;ea7a06666b0e"
+  },
+  "Virchow2|FedProx": {
+   "lr": 0.001,
+   "keys": "13d76e2e198b;57785171a251;6000f0b8d20f;7ca7e44642b5;ebd9ee2a872e"
+  },
+  "Virchow2|SCAFFOLD": {
+   "lr": 0.0003,
+   "keys": "301817e160ed;5ebcabd649f0;6343b811ad8c;c4e1d86e5fc4;c8ccb1400c71"
+  }
+ },
+ "main_sgd": {
+  "CTransPath|FedAvg": {
+   "lr": 0.1,
+   "keys": "515678dff49e;a6b60c9a7fb5;dfeb9da05975;f810e31364fd;ff7e5dab2ad7"
+  },
+  "CTransPath|FedBN": {
+   "lr": 0.1,
+   "keys": "116d802e6eaf;3ab077edcf20;9598d1445ef4;a954ba523540;d4c9151ba51f"
+  },
+  "CTransPath|FedProx": {
+   "lr": 0.1,
+   "keys": "7e8ffe3ea357;8363cef4bc39;a37621e7ee0b;ca483c3bd809;f80c0b273494"
+  },
+  "CTransPath|SCAFFOLD": {
+   "lr": 0.03,
+   "keys": "092159602086;0aa317f8e2f1;26e142f30d00;29dd769e6c47;b0f7fa025b2e"
+  },
+  "Conch_v15|FedAvg": {
+   "lr": 0.03,
+   "keys": "0c2c8c4c6dd2;20e72e852dab;47e0b95494d2;6692ec28e1ef;d719dd7ec191"
+  },
+  "Conch_v15|FedBN": {
+   "lr": 0.1,
+   "keys": "0825d594b18d;8b84fd012b7d;9845c5954c05;cdce07ff05ec;dac93a20afbf"
+  },
+  "Conch_v15|FedProx": {
+   "lr": 0.03,
+   "keys": "81d71d57000c;9f7539557b7d;a92f4d472a0d;c56f83764c2e;e3f121dcd46d"
+  },
+  "Conch_v15|SCAFFOLD": {
+   "lr": 0.01,
+   "keys": "3ec03b3bc34b;45047e7cb0be;8a2481a34d4b;c469db876fa9;e08e33ae2ee9"
+  },
+  "Midnight12k|FedAvg": {
+   "lr": 0.03,
+   "keys": "3208a61d054e;a778509b44f2;bd9b8001bcb1;f1350014be06;f512c096be38"
+  },
+  "Midnight12k|FedBN": {
+   "lr": 0.1,
+   "keys": "29f003b32e35;40ece1a74774;4f57b32c0daa;b6acb32ab45d;ea972c63b498"
+  },
+  "Midnight12k|FedProx": {
+   "lr": 0.03,
+   "keys": "2c228277e725;56207ce42e15;c8c24eb46b06;dce52ed0eb03;f10ad82ce39b"
+  },
+  "Midnight12k|SCAFFOLD": {
+   "lr": 0.01,
+   "keys": "04b3d57df3e3;34ec6bb5b2c4;40a0c40f9f53;8c5b676f1a83;9c29ac0be5d7"
+  },
+  "Phikon_v2|FedAvg": {
+   "lr": 0.03,
+   "keys": "145713ae933a;147a9a78c8f7;49aba1d81e76;a38007210553;be3156d883bd"
+  },
+  "Phikon_v2|FedBN": {
+   "lr": 0.1,
+   "keys": "10a78f22f87c;4058dc0c27fc;779423dc387d;87cbfa1d08c2;db7c56a77bf7"
+  },
+  "Phikon_v2|FedProx": {
+   "lr": 0.03,
+   "keys": "2140d6c98ef8;6f95a41e7887;b17c204327dd;b477540f480b;ca709f961305"
+  },
+  "Phikon_v2|SCAFFOLD": {
+   "lr": 0.01,
+   "keys": "061a4d47a20c;2555bcff29e0;26f79a5d6c09;27b73b635292;a7c672bf5770"
+  },
+  "ResNet50|FedAvg": {
+   "lr": 0.1,
+   "keys": "00ef90167c49;093e7fc1665e;16659f36a0c2;1c8ee9020d26;d6cb060ab64c"
+  },
+  "ResNet50|FedBN": {
+   "lr": 0.1,
+   "keys": "4c9ffeeb3dcc;702555e76037;83ca538507fc;aa09823e47af;e91af8c21789"
+  },
+  "ResNet50|FedProx": {
+   "lr": 0.1,
+   "keys": "4b21a42c4f5b;5bd62a84c4dd;84ed4e653e1b;ee030ffa3b1f;f00d1f0eb3a8"
+  },
+  "ResNet50|SCAFFOLD": {
+   "lr": 0.03,
+   "keys": "04b1a85938b9;6c125c2bf934;7da5b2935509;aaae240a0459;f6bc32719593"
+  },
+  "UNI_v2|FedAvg": {
+   "lr": 0.03,
+   "keys": "3635bafca89f;65f26d812bf2;a3a4f5ba13cc;c6c46da1a506;fe2bfd04e808"
+  },
+  "UNI_v2|FedBN": {
+   "lr": 0.1,
+   "keys": "0b992e6f4e08;5225821a10b8;646365e57e4f;a503da8deb15;b4a1add591cb"
+  },
+  "UNI_v2|FedProx": {
+   "lr": 0.03,
+   "keys": "0c541d3e6767;2fe2f5b078bc;5f794406c0f1;68be14540dea;9feb11fbb2ff"
+  },
+  "UNI_v2|SCAFFOLD": {
+   "lr": 0.01,
+   "keys": "4db4cc373d4c;8ec54c589cd1;c57ab2121f22;d060e2f2bdd8;dcb4bce65812"
+  },
+  "Virchow2|FedAvg": {
+   "lr": 0.01,
+   "keys": "3deb92923938;4a5dd57c803f;4c1873b60972;532e142c67db;952a520473a1"
+  },
+  "Virchow2|FedBN": {
+   "lr": 0.1,
+   "keys": "082d9c96915a;2f77e89481b5;383af6f1ec01;8a8009cee137;a88e448b5094"
+  },
+  "Virchow2|FedProx": {
+   "lr": 0.01,
+   "keys": "89d361d100d8;a60be04bcba7;d3c329ee2459;f59f4c702f8f;f6572ea54693"
+  },
+  "Virchow2|SCAFFOLD": {
+   "lr": 0.003,
+   "keys": "01c7c0cca63a;c53b5d709657;cfd5d18f81c0;e80cbcba548f;f46f230d9a28"
+  }
+ },
+ "central": {
+  "CTransPath|adam": {
+   "lr": 0.0001,
+   "keys": "25fa436cf578;45b255dd6dcb;9cf9efafc57e;ab96626ab33f;d026cfc876be"
+  },
+  "CTransPath|sgd": {
+   "lr": 0.01,
+   "keys": "09da0ff82898;2d7ad4ad8c6a;76b504e1d6de;8923177ae9bf;c43ab54f11ae"
+  },
+  "Conch_v15|adam": {
+   "lr": 0.0001,
+   "keys": "2e25389159f0;4e8676fc2da1;73ccc5010342;b4fb5f2906bd;cfc1825e50cd"
+  },
+  "Conch_v15|sgd": {
+   "lr": 0.01,
+   "keys": "00272597517c;8784d243f9e1;bd725f3107e2;c257659811dd;ce3c42fee930"
+  },
+  "Midnight12k|adam": {
+   "lr": 0.0003,
+   "keys": "0276f2f7cd76;737efa1260ec;8bbc1d0704f8;d52162416d09;f07d2a360162"
+  },
+  "Midnight12k|sgd": {
+   "lr": 0.03,
+   "keys": "1cc29df66f8c;263185331447;4b3535e9e1cf;5b6a1059d025;a7526ab45f21"
+  },
+  "Phikon_v2|adam": {
+   "lr": 0.0003,
+   "keys": "27890006590b;3136f4971a63;4ea6b0d4815d;7109a6db6db6;eff7d7b0df0b"
+  },
+  "Phikon_v2|sgd": {
+   "lr": 0.01,
+   "keys": "5c2cb8e24306;85ada1be80e6;93ef44d48269;a33c642feb50;ddcc5ae1c1d1"
+  },
+  "ResNet50|adam": {
+   "lr": 0.0001,
+   "keys": "0d13e3dd46f8;19caede37a6c;4f35cc7c7e05;ccefa5fb2cef;cd545cdbf1aa"
+  },
+  "ResNet50|sgd": {
+   "lr": 0.03,
+   "keys": "0eb0fe9e9c3b;4b5647641b88;790ade5270b6;9ef86b24e291;d62ea93bb84e"
+  },
+  "UNI_v2|adam": {
+   "lr": 0.0003,
+   "keys": "08afa817575b;487799338813;6544c0ee755e;9bc418b52c3e;faa098860594"
+  },
+  "UNI_v2|sgd": {
+   "lr": 0.01,
+   "keys": "3ec02afdaee5;49090863d659;56f1121fa95e;6506748c2e34;cbb4fea4424f"
+  },
+  "Virchow2|adam": {
+   "lr": 0.0001,
+   "keys": "0fb12b5afbf1;42fb494d6d9a;6d468d134ac3;ddadcbd7b5b4;f31ae91eb176"
+  },
+  "Virchow2|sgd": {
+   "lr": 0.003,
+   "keys": "0680abf84bcf;12ebcb17dd73;2e3c64ea9175;cb6053064ee0;edecb9d96def"
+  }
+ },
+ "T_mu_adam": {
+  "CTransPath": {
+   "mu": 1.0
+  },
+  "Conch_v15": {
+   "mu": 1.0
+  },
+  "Midnight12k": {
+   "mu": 0.1
+  },
+  "Phikon_v2": {
+   "mu": 0.1
+  },
+  "ResNet50": {
+   "mu": 1.0
+  },
+  "UNI_v2": {
+   "mu": 1.0
+  },
+  "Virchow2": {
+   "mu": 0.01
+  }
+ },
+ "T_lr_adam": {
+  "CTransPath": {
+   "lr": 0.001
+  },
+  "Conch_v15": {
+   "lr": 0.001
+  },
+  "Midnight12k": {
+   "lr": 0.001
+  },
+  "Phikon_v2": {
+   "lr": 0.001
+  },
+  "ResNet50": {
+   "lr": 0.0003
+  },
+  "UNI_v2": {
+   "lr": 0.001
+  },
+  "Virchow2": {
+   "lr": 0.001
+  }
+ },
+ "T_participation": {
+  "Conch_v15": {
+   "k": 30.0
+  },
+  "Phikon_v2": {
+   "k": -1.0
+  },
+  "UNI_v2": {
+   "k": -1.0
+  },
+  "Virchow2": {
+   "k": -1.0
+  }
+ },
+ "T_mu_sgd": {
+  "Conch_v15": {
+   "lr": 0.03,
+   "mu": 0.001
+  },
+  "Phikon_v2": {
+   "lr": 0.1,
+   "mu": 0.001
+  },
+  "UNI_v2": {
+   "lr": 0.03,
+   "mu": 0.1
+  }
+ }
+}

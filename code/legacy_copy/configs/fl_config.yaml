@@ -1,0 +1,97 @@
+# Federated Learning WSI Configuration
+# Sites = TCGA Tissue Source Sites (TSS codes) — natural federation partitions
+
+data:
+  feature_dir: /mnt/10t/cached_slide_features_npy
+  metadata_tsv: /mnt/10t/holiday/1019_image/gdc_sample_sheet.2025-10-23.tsv
+  clinical_csv: /home/holiday01/foundation/TCGA_clinical_BRCA_COAD_STAD.csv
+  cache_pkl_dir: /home/holiday01/foundation
+  results_dir: /home/holiday01/fl_wsi/results
+
+# Foundation models available
+foundation_models:
+  - UNI_v2        # 1024-dim
+  - Virchow2      # 2560-dim
+  - Phikon_v2     # 768-dim
+  - Conch_v15     # 512-dim
+  - CTransPath    # 768-dim
+  - Midnight12k   # 1024-dim
+  - ResNet50      # 2048-dim
+
+model_dims:
+  UNI_v2: 12288
+  Virchow2: 20480
+  Phikon_v2: 8192
+  Conch_v15: 6144
+  CTransPath: 6144
+  Midnight12k: 12288
+  ResNet50: 8192
+
+# Federated learning settings
+federated:
+  algorithm: FedAvg          # FedAvg | FedProx | SCAFFOLD | FedBN
+  num_rounds: 1000           # high ceiling — early stopping handles termination
+  clients_per_round: 20      # ≥9 to cover all cancer types via stratified sampling
+  min_samples_per_client: 10 # exclude tiny sites
+  local_epochs: 5            # 5 epochs/round: more local training, trust early-stop to terminate
+  local_lr: 0.0003           # lower lr stabilizes convergence for class-partitioned FL
+  mu: 0.01                   # FedProx proximal term (only for FedProx)
+  stratified_sampling: true  # ensure ≥1 client per cancer type per round (AutoFL contribution)
+
+  # Client selector: "stratified" (default) | "ucb" | "pathology_aware" |
+  #                  "oort" | "loss_based" | "fedcor"
+  client_selector: stratified
+  ucb_c: 2.0            # UCB exploration coefficient
+  pa_beta: 1.0          # PathologyAware: exploration weight
+  pa_lambda: 0.5        # PathologyAware: feature-diversity weight
+  pa_rho: 0.2           # PathologyAware: instability penalty weight
+  pa_window: 10         # PathologyAware: reward history window
+  oort_alpha: 1.0       # Oort: utility weight (sqrt(N) * loss)
+  fedcor_eta: 1.0       # FedCor: weight-delta-norm utility weight
+  fedcor_gamma: 0.5     # FedCor: cosine-similarity penalty weight
+
+  # Early stopping: only stops when model has truly plateaued
+  early_stopping_patience: 50    # generous patience: trust early-stop to decide when to terminate
+  early_stopping_min_delta: 0.001 # minimum accuracy gain to count as improvement
+  early_stopping_min_rounds: 100  # warmup floor before early-stop can fire
+  restore_best_weights: true      # restore best model weights when stopping
+  centralized_epochs: 300        # fixed epochs for centralized baseline (independent of num_rounds)
+
+# Tasks to run
+tasks:
+  cancer_type_classification:
+    enabled: true
+    num_classes: 9
+    metric: accuracy
+  survival_prediction:
+    enabled: true
+    metric: c_index
+
+# Model architecture (MLP head on top of frozen foundation features)
+# NOTE: batch_norm=false for FedAvg/FedProx/SCAFFOLD — BN stats diverge across non-IID clients
+# Use batch_norm=true only for FedBN (which keeps local BN params)
+model:
+  hidden_dims: [512, 256]
+  dropout: 0.3
+  batch_norm: false
+
+# Experiment settings
+experiment:
+  seed: 42
+  train_ratio: 0.7
+  val_ratio: 0.1
+  test_ratio: 0.2
+  batch_size: 32
+  device: cuda         # cuda | cpu
+
+# Cancer types and labels
+cancer_types:
+  TCGA-BRCA: 0
+  TCGA-COAD: 1
+  TCGA-STAD: 2
+  TCGA-LGG: 3
+  TCGA-LUAD: 4
+  TCGA-HNSC: 5
+  TCGA-SKCM: 6
+  TCGA-CESC: 7
+  TCGA-PAAD: 8

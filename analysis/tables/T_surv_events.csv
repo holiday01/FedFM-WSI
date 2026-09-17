@@ -1,0 +1,4 @@
+cancer,slides,patients,clients,events,censored_pct,slides_per_patient,median_train_patients_per_client,train_patients,train_events,val_patients,val_events,test_patients,test_events
+BRCA,1495,1038,21,147,85.83815028901734,1.4402697495183043,31.0,718,100,94,13,226,34
+COAD,799,418,14,91,78.22966507177034,1.9114832535885167,12.0,286,59,36,6,96,26
+STAD,547,381,11,157,58.79265091863517,1.4356955380577427,20.0,262,108,33,13,86,36
