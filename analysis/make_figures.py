@@ -538,7 +538,7 @@ def fig1():
     box(1, 25, 31, 21, "Slides and encoders", "9 cancer types, 5,208 slides,\n3,707 patients (TCGA)\n6 pathology FMs + ResNet50\ntiles at 20×, 256 px, frozen", C[0])
     box(1, 1, 31, 21, "Slide vectors", "8 tile statistics per dim.\n(mean, s.d., max, min,\np25, p50, p75, p90)\n6,144 to 20,480 dims, cached", C[0])
     box(35, 25, 31, 21, "Federation", "107 Project_TSS clients,\none cancer type each\npatient-level 70/10/20 split\n+ institution, label-skew,\nIID partitions", C[1])
-    box(35, 1, 31, 21, "Heads and algorithms", "MLP or linear head, 20 clients / round\nFedAvg / FedProx /\nSCAFFOLD / FedBN\nAdam (fixed or selected η)\nor SGD (selected η)", C[1])
+    box(35, 1, 31, 21, "Heads and algorithms", "MLP or linear head\n20 clients per round\nFedAvg / FedProx /\nSCAFFOLD / FedBN\nAdam (fixed / selected η)\nor SGD (selected η)", C[1])
     box(69, 25, 30, 21, "Evaluation", "9-class accuracy, balanced\naccuracy, per-class recall\n5 seeds (10: UNI v2 selection)\nseed + patient bootstrap CIs\nmatched centralized baselines", C[2])
     box(69, 1, 30, 21, "Transfer and survival", "external CPTAC slides\n(LUAD, PDA)\nwithin-cancer Cox\n(BRCA, COAD, STAD)\nvs pooled and site-stratified\ncentralized Cox", C[2])
     arrow(32.3, 34.7, 35.5); arrow(66.3, 68.7, 35.5)
