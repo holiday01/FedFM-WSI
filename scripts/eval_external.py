@@ -23,11 +23,11 @@ COH = {"luad": 4, "pda": 8}
 
 
 def load_ext(fm):
-    X, y, coh = [], [], []
+    X, y, coh, names = [], [], [], []
     for c, lab in COH.items():
         for f in sorted((EXT / fm).glob(f"{c}__*.npy")):
-            X.append(np.load(f).astype(np.float32)); y.append(lab); coh.append(c)
-    return np.stack(X), np.array(y), np.array(coh)
+            X.append(np.load(f).astype(np.float32)); y.append(lab); coh.append(c); names.append(f.stem.split("__", 1)[1])
+    return np.stack(X), np.array(y), np.array(coh), np.array(names)
 
 
 def build(cfg, input_dim):
@@ -38,11 +38,13 @@ def build(cfg, input_dim):
 
 def main():
     dev = "cuda" if torch.cuda.is_available() else "cpu"
-    rows = []
+    rows = []; preds = {}; slide_names = None
     for fm in ["UNI_v2", "Virchow2", "Phikon_v2", "Conch_v15", "CTransPath", "Midnight12k", "ResNet50"]:
         if not (EXT / fm).exists():
             continue
-        X, y, coh = load_ext(fm)
+        X, y, coh, names = load_ext(fm)
+        if slide_names is None: slide_names = names
+        assert (names == slide_names).all(), "CPTAC slide order differs between encoders"
         Xt = torch.tensor(X, device=dev)
         for grid in ["main", "sgd", "central"]:
             for pt in sorted((REV / "results" / "cls" / grid / fm).glob("*.pt")):
@@ -54,6 +56,7 @@ def main():
                 m.load_state_dict(st); m.eval()
                 with torch.no_grad():
                     pred = m(Xt).argmax(1).cpu().numpy()
+                preds[j["key"]] = pred.astype(np.int8)
                 for c, lab in COH.items():
                     msk = coh == c
                     dist = np.bincount(pred[msk], minlength=9) / msk.sum()
@@ -65,6 +68,7 @@ def main():
         print(fm, len(rows), flush=True)
     df = pd.DataFrame(rows)
     df.to_csv(OUT / "external_eval.csv", index=False)
+    np.savez_compressed(OUT / "external_preds.npz", slides=slide_names, cohort=coh, y=y, **preds)   # per-slide predicted class per run key (one slide per patient in both CPTAC cohorts)
     print(df.groupby(["grid", "fm", "algorithm", "optimizer", "lr", "cohort"])[["recall", "tcga_recall"]].mean().round(3).to_string())
 
 

@@ -314,7 +314,7 @@ def fig7():
         for i, p in enumerate(pols):
             v = 100 * R[R.sampling == p].acc.values
             ax.scatter(np.full(len(v), i) + np.random.default_rng(1).uniform(-0.15, 0.15, len(v)), v, s=10, color=C[0], alpha=0.6, linewidths=0)
-            ax.errorbar(i, v.mean(), yerr=v.std(), fmt="_", color=INK, ms=14, capsize=4, elinewidth=1.2)
+            ax.errorbar(i, v.mean(), yerr=v.std(ddof=1), fmt="_", color=INK, ms=14, capsize=4, elinewidth=1.2)
             reach = selt[(selt.fm == "UNI_v2") & (selt.sampling == p)].reach80 if selt is not None and "reach80" in selt.columns else None
             lab = (f"{int(round(float(reach.iloc[0]) * len(v)))}/{len(v)}" if reach is not None and len(reach) else f"n={len(v)}")
             ax.text(i, 103.5, lab, ha="center", va="top", fontsize=7, color=INK2)
@@ -538,8 +538,8 @@ def fig1():
     box(1, 25, 31, 21, "Slides and encoders", "9 cancer types, 5,208 slides,\n3,707 patients (TCGA)\n6 pathology FMs + ResNet50\ntiles at 20×, 256 px, frozen", C[0])
     box(1, 1, 31, 21, "Slide vectors", "8 tile statistics per dim.\n(mean, s.d., max, min,\np25, p50, p75, p90)\n6,144 to 20,480 dims, cached", C[0])
     box(35, 25, 31, 21, "Federation", "107 Project_TSS clients,\none cancer type each\npatient-level 70/10/20 split\n+ institution, label-skew,\nIID partitions", C[1])
-    box(35, 1, 31, 21, "Heads and algorithms", "MLP or linear head\n20 clients per round\nFedAvg / FedProx /\nSCAFFOLD / FedBN\nAdam or SGD, validation-selected", C[1])
-    box(69, 25, 30, 21, "Evaluation", "9-class accuracy, balanced\naccuracy, per-class recall\n5 seeds; seed + patient\nbootstrap intervals\nmatched centralized baselines", C[2])
+    box(35, 1, 31, 21, "Heads and algorithms", "MLP or linear head, 20 clients / round\nFedAvg / FedProx /\nSCAFFOLD / FedBN\nAdam (fixed or selected η)\nor SGD (selected η)", C[1])
+    box(69, 25, 30, 21, "Evaluation", "9-class accuracy, balanced\naccuracy, per-class recall\n5 seeds (10: UNI v2 selection)\nseed + patient bootstrap CIs\nmatched centralized baselines", C[2])
     box(69, 1, 30, 21, "Transfer and survival", "external CPTAC slides\n(LUAD, PDA)\nwithin-cancer Cox\n(BRCA, COAD, STAD)\nvs pooled and site-stratified\ncentralized Cox", C[2])
     arrow(32.3, 34.7, 35.5); arrow(66.3, 68.7, 35.5)
     arrow(32.3, 34.7, 11.5); arrow(66.3, 68.7, 11.5)
