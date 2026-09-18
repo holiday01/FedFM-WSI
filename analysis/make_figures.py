@@ -114,7 +114,7 @@ def fig2():
             if M[r, c] > 0:
                 ax.text(c, r, int(M[r, c]), ha="center", va="center", fontsize=8,
                         color="white" if M[r, c] > 60 else INK)
-    ax.set_title(f"{len(multi)} of {st['n_institutions']} source organisations hold > 1 cancer type", fontsize=9)
+    ax.set_title(f"{len(multi)} of {st['n_institutions']} source organisations\nhold > 1 cancer type", fontsize=8.5, loc="right")
     ax.tick_params(length=0)
     panel(ax, "B")
     fig.tight_layout(w_pad=2)
@@ -140,8 +140,10 @@ def fig3():
             ser.append(("Central, Adam", 100 * ca.loc[fms, metric].values, 100 * ca.loc[fms, metric + "_sd"].values, C[2]))
         if cs_ is not None and all(f in cs_.index for f in fms):
             ser.append(("Central, SGD", 100 * cs_.loc[fms, metric].values, 100 * cs_.loc[fms, metric + "_sd"].values, C[3]))
-        bars(axes[k], cats, ser, ylabel=name, ylim=(0, 105), legend=(k == 0))
+        bars(axes[k], cats, ser, ylabel=name, ylim=(0, 105), legend=False)
         panel(axes[k], "AB"[k])
+    h_, l_ = axes[0].get_legend_handles_labels()
+    axes[0].legend(h_, l_, frameon=False, ncol=2, loc="upper left", bbox_to_anchor=(-0.05, -0.42), fontsize=7.5, handlelength=1.2, columnspacing=0.8)
     ax = axes[2]
     if gap is not None and len(gap):
         y = np.arange(len(fms))
@@ -269,7 +271,7 @@ def fig6():
                         elinewidth=0.9, capsize=1.5, label=lab)
         ax.axvline(0.5, color=INK2, linewidth=0.6, linestyle=(0, (2, 2)))
         ax.set_yticks(y); ax.set_yticklabels([LBL[f] for f in fms] if k == 0 else []); ax.invert_yaxis()
-        ax.set_xlim(0.35, 0.85); ax.set_xlabel("Patient-level C-index"); ax.set_title(cancer, fontsize=9); grid(ax, "x")
+        ax.set_xlim(0.35, 0.85); ax.set_xlabel("Patient-level C-index" if k == 1 else ""); ax.set_title(cancer, fontsize=9); grid(ax, "x")
         if k == 1: ax.legend(frameon=False, fontsize=7, loc="upper center", bbox_to_anchor=(0.5, -0.3), ncol=3)
         panel(ax, "ABC"[k])
     ax = fig.add_subplot(gs[1, :])
@@ -287,7 +289,7 @@ def fig6():
         if idx[0] > 0: ax.axvline(idx[0] - 0.5, color=GRID, linewidth=0.6)
     ax.set_xticks(x); ax.set_xticklabels(P2.lab, rotation=60, ha="right", fontsize=7)
     ax.set_ylabel("FL − centralized (pooled)\nC-index, 95% CI"); ax.set_ylim(-0.3, 0.3); grid(ax)
-    panel(ax, "D")
+    ax.text(-0.045, 1.06, "D", transform=ax.transAxes, fontsize=13, fontweight="bold", va="top", ha="left")
     fig.tight_layout(h_pad=2.5)
     save(fig, "fig6_survival")
 
@@ -307,17 +309,17 @@ def fig7():
                 rows.append((c["sampling"], j["test"]["accuracy"], j["rounds_run"]))
         R = pd.DataFrame(rows, columns=["sampling", "acc", "rounds"])
         pols = [p for p in ["stratified", "uniform", "ucb", "pathology_aware"] if p in set(R.sampling)]
-        names = {"stratified": "Stratified\nrandom", "uniform": "Uniform\nrandom", "ucb": "UCB1", "pathology_aware": "Pathology\nAware"}
+        names = {"stratified": "Stratified", "uniform": "Uniform", "ucb": "UCB1", "pathology_aware": "PathologyAware"}
         selt = load("T_selection")
         for i, p in enumerate(pols):
             v = 100 * R[R.sampling == p].acc.values
             ax.scatter(np.full(len(v), i) + np.random.default_rng(1).uniform(-0.15, 0.15, len(v)), v, s=10, color=C[0], alpha=0.6, linewidths=0)
             ax.errorbar(i, v.mean(), yerr=v.std(), fmt="_", color=INK, ms=14, capsize=4, elinewidth=1.2)
             reach = selt[(selt.fm == "UNI_v2") & (selt.sampling == p)].reach80 if selt is not None and "reach80" in selt.columns else None
-            lab = f"n={len(v)}" + (f"\n{int(round(100 * float(reach.iloc[0])))}% reach 80%" if reach is not None and len(reach) else "")
-            ax.text(i, v.max() + 1.5, lab, ha="center", va="bottom", fontsize=8, color=INK2)
-        ax.set_ylim(top=ax.get_ylim()[1] + 8)
-        ax.set_xticks(range(len(pols))); ax.set_xticklabels([names[p] for p in pols], fontsize=8)
+            lab = (f"{int(round(float(reach.iloc[0]) * len(v)))}/{len(v)}" if reach is not None and len(reach) else f"n={len(v)}")
+            ax.text(i, 103.5, lab, ha="center", va="top", fontsize=7, color=INK2)
+        ax.set_ylim(55, 105)
+        ax.set_xticks(range(len(pols))); ax.set_xticklabels([names[p] for p in pols], fontsize=7, rotation=30, ha="right")
         ax.set_ylabel("Test accuracy (%), UNI v2"); grid(ax)
     panel(ax, "A")
     for k, (t, hp, name, log) in enumerate([(mu, "mu", "FedProx μ", True), (lr, "lr", "Adam learning rate", True), (part, "k", "Clients per round", False)]):
@@ -370,25 +372,25 @@ def fig9():
     if not p.exists(): return
     E = pd.read_csv(p)
     sgd = load("T_main_sgd")
-    sets = [("main", "FedAvg", "adam", None, "FL, Adam"), ("sgd", "FedAvg", "sgd", sgd, "FL, SGD"), ("central", "central-tuned", "adam", None, "Centralized")]
+    sets = [("main", "FedAvg", "adam", None, "FL, Adam (fixed)"), ("sgd", "FedAvg", "sgd", sgd, "FL, SGD"), ("central", "central-tuned", "adam", None, "Central, Adam"), ("central", "central-tuned", "sgd", None, "Central, SGD")]
     fig, axes = plt.subplots(1, 2, figsize=(7.2, 2.9))
     for k, coh in enumerate(["luad", "pda"]):
         ax = axes[k]
         ser = []
         fms = [f for f in FMS if f in set(E[E.cohort == coh].fm)]
         for i, (grid_, algo, opt, seltab, name) in enumerate(sets):
-            d = E[(E.grid == grid_) & (E.algorithm == algo) & (E.cohort == coh)]
+            d = E[(E.grid == grid_) & (E.algorithm == algo) & (E.cohort == coh) & (E.optimizer == opt)]
             if grid_ == "sgd" and seltab is not None:       # keep validation-selected lr per FM
                 lrs = seltab[seltab.algorithm == "FedAvg"].set_index("fm").lr
                 d = d[[abs(r.lr - lrs.get(r.fm, -1)) < 1e-9 for _, r in d.iterrows()]]
             if grid_ == "central":
-                cen = load("T_central"); lrs = cen[(cen.protocol == "tuned") & (cen.optimizer == "adam")].set_index("fm").lr
+                cen = load("T_central"); lrs = cen[(cen.protocol == "tuned") & (cen.optimizer == opt)].set_index("fm").lr
                 d = d[[abs(r.lr - lrs.get(r.fm, -1)) < 1e-9 for _, r in d.iterrows()]]
             if not len(d): continue
             g = d.groupby("fm").agg(r=("recall", "mean"), sd=("recall", "std"), t=("tcga_recall", "mean")).reindex(fms)
             ser.append((name, 100 * g.r.values, 100 * g.sd.values, C[i]))
         if ser:
-            bars(ax, [LBL[f] for f in fms], ser, ylabel="Recall on CPTAC (%)" if k == 0 else "", ylim=(0, 105), legend=(k == 0))
+            bars(ax, [LBL[f] for f in fms], ser, ylabel="Recall on CPTAC (%)" if k == 0 else "", ylim=(0, 112), legend=(k == 0))
         ax.set_title({"luad": "CPTAC-LUAD (244 slides) → LUAD class", "pda": "CPTAC-PDA (169 slides) → PAAD class"}[coh], fontsize=8.5)
         panel(ax, "AB"[k])
     fig.tight_layout(w_pad=1.5)
