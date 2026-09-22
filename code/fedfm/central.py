@@ -102,4 +102,4 @@ def run_central(cfg: CentralConfig, X, y, samples, device="cuda"):
     return dict(config=asdict(cfg), best_epoch=best_ep, best_val=best, val_history=hist, epochs_run=len(hist) if not legacy else cfg.epochs,
                 total_steps=(len(hist) if not legacy else cfg.epochs) * (n // bs),
                 test=met, n_params=n_params(model), seconds=time.time() - t0), \
-        dict(test_idx=te_np, probs=probs.astype(np.float16)), model.state_dict()
+        dict(test_idx=te_np, pred=probs.argmax(1).astype(np.int8), probs=probs.astype(np.float32)), model.state_dict()   # [v2-13] as in fl.py

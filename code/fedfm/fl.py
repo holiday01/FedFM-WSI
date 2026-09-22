@@ -398,4 +398,5 @@ class FLRun:
             bytes_per_model=hp * 4, total_local_steps=total_steps,
             coverage_history=coverage, selection_counts=dict(sel_counts),
             seconds=time.time() - t0,
-        ), dict(test_idx=idx, probs=probs.astype(np.float16)), best_state
+        ), dict(test_idx=idx, pred=pred.astype(np.int8), probs=probs.astype(np.float32)), best_state   # [v2-13] integer class as evaluated + float32 probabilities
+        # (runs archived before 2026-09-22 stored float16 probabilities only; analysis/aggregate_cls.py uses `pred` when present)

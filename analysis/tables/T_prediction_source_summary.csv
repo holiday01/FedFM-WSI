@@ -1,0 +1,2 @@
+n_runs,runs_confusion_differs,max_abs_cell_shift_any_table_pp,worst_cell,max_abs_cell_shift_any_table_pathology_pp,runs_accuracy_differs,max_abs_run_shift_pp,max_changed_predictions,max_abs_cell_shift_pathology_pp,max_abs_cell_shift_all_pp,cells,cells_affected
+2872,546,0.30919446704637865,mu ResNet50 FedProx adam 0.0003,0.09764035801464455,343,1.3832384052074875,58,0.04882017900732394,0.24410089503661525,98,47

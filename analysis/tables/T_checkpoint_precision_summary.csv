@@ -1,0 +1,2 @@
+n_checkpoints,dtypes,checkpoints_identical_to_archived,checkpoints_identical_to_json,median_diff_slides_vs_archived,max_diff_slides_vs_archived,max_abs_shift_vs_archived_pp,max_abs_shift_vs_json_pp,p95_abs_shift_vs_archived_pp
+805,torch.float16,600,696,0.0,52,1.3832384052074875,0.6509357200976396,0.14646053702196257

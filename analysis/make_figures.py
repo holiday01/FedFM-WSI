@@ -26,8 +26,10 @@ LBL = {"UNI_v2": "UNI v2", "Virchow2": "Virchow2", "Phikon_v2": "Phikon v2", "Co
 CLASSES = ["BRCA", "COAD", "STAD", "LGG", "LUAD", "HNSC", "SKCM", "CESC", "PAAD"]
 ALGOS = ["FedAvg", "FedProx", "SCAFFOLD", "FedBN"]
 
-plt.rcParams.update({"font.size": 10, "axes.labelsize": 10, "axes.titlesize": 10, "legend.fontsize": 8.5,
-                     "xtick.labelsize": 9, "ytick.labelsize": 9, "axes.edgecolor": INK2, "axes.linewidth": 0.6,
+# Figures are 7.2-7.5 in wide and printed at \textwidth (6.27 in), i.e. scaled by 0.84-0.87; the sizes below keep every
+# rendered label at >= 7.5 pt and axis/tick text at >= 8.5 pt (checked on the produced PDF by analysis/check_fonts.py).
+plt.rcParams.update({"font.size": 10.5, "axes.labelsize": 10.5, "axes.titlesize": 10.5, "legend.fontsize": 9.5,
+                     "xtick.labelsize": 10, "ytick.labelsize": 10, "axes.edgecolor": INK2, "axes.linewidth": 0.6,
                      "xtick.color": INK2, "ytick.color": INK2, "axes.labelcolor": INK, "text.color": INK,
                      "axes.spines.top": False, "axes.spines.right": False, "pdf.fonttype": 42, "ps.fonttype": 42,
                      "font.family": "DejaVu Sans"})
@@ -39,7 +41,7 @@ def load(name):
 
 
 def panel(ax, letter):
-    ax.text(-0.12, 1.06, letter, transform=ax.transAxes, fontsize=13, fontweight="bold", va="top", ha="left")
+    ax.text(-0.2, 1.16, letter, transform=ax.transAxes, fontsize=13, fontweight="bold", va="top", ha="left")
 
 
 def grid(ax, axis="y"):
@@ -54,7 +56,7 @@ def save(fig, name):
     print("saved", name)
 
 
-def bars(ax, cats, series, width=0.8, ylabel="", ylim=None, legend=True):
+def bars(ax, cats, series, width=0.8, ylabel="", ylim=None, legend=True, rotation=30, ticksize=None):
     """series: list of (label, mean array, sd array, color)"""
     n = len(series); w = width / n; x = np.arange(len(cats))
     for i, (lab, m, sd, col) in enumerate(series):
@@ -62,11 +64,11 @@ def bars(ax, cats, series, width=0.8, ylabel="", ylim=None, legend=True):
         ax.bar(pos, m, w * 0.92, color=col, label=lab, linewidth=0)
         if sd is not None:
             ax.errorbar(pos, m, yerr=sd, fmt="none", ecolor=INK2, elinewidth=0.8, capsize=2)
-    ax.set_xticks(x); ax.set_xticklabels(cats, rotation=30, ha="right")
+    ax.set_xticks(x); ax.set_xticklabels(cats, rotation=rotation, ha="right", fontsize=ticksize)
     ax.set_ylabel(ylabel)
     if ylim: ax.set_ylim(ylim[0], ylim[1] + (18 if legend else 0))
     grid(ax)
-    if legend: ax.legend(frameon=False, ncol=2, loc="upper left", fontsize=8, handlelength=1.2, columnspacing=0.8)
+    if legend: ax.legend(frameon=False, ncol=2, loc="upper left", fontsize=8.5, handlelength=1.2, columnspacing=0.8)
 
 
 # ─────────────────────── Fig 2: cohort / federation ───────────────────────
@@ -90,8 +92,8 @@ def fig2():
         ticks.append(pos + n / 2 - 0.5); tlabs.append(f"{cl} ({n})")
         if pos > 0: ax.axvline(pos - 0.5, color=GRID, linewidth=0.6)
         pos += n
-    ax.set_xticks(ticks); ax.set_xticklabels(tlabs, rotation=45, ha="right", fontsize=8)
-    ax.set_xlabel("107 Project_TSS clients (cancer type, number of clients)")
+    ax.set_xticks(ticks); ax.set_xticklabels(tlabs, rotation=45, ha="right", fontsize=8.5)
+    ax.set_xlabel("Project_TSS clients by cancer type (number of clients)")
     ax.set_ylabel("Slides per client"); ax.set_ylim(0, max(vals) * 1.08); grid(ax)
     panel(ax, "A")
     ax = axes[1]
@@ -107,14 +109,14 @@ def fig2():
     multi = sorted(multi, key=lambda i: -sum(m[i].values()))
     M = np.array([[m[i][c] for c in CLASSES] for i in multi], dtype=float)
     im = ax.imshow(np.log1p(M), cmap=SEQ, aspect="auto")
-    ax.set_xticks(range(9)); ax.set_xticklabels(CLASSES, rotation=90, fontsize=8)
-    ax.set_yticks(range(len(multi))); ax.set_yticklabels([i[:22] for i in multi], fontsize=8)
+    ax.set_xticks(range(9)); ax.set_xticklabels(CLASSES, rotation=90, fontsize=8.5)
+    ax.set_yticks(range(len(multi))); ax.set_yticklabels([i[:22] for i in multi], fontsize=8.5)
     for r in range(M.shape[0]):
         for c in range(9):
             if M[r, c] > 0:
-                ax.text(c, r, int(M[r, c]), ha="center", va="center", fontsize=8,
+                ax.text(c, r, int(M[r, c]), ha="center", va="center", fontsize=8.5,
                         color="white" if M[r, c] > 60 else INK)
-    ax.set_title(f"{len(multi)} of {st['n_institutions']} source organisations\nhold > 1 cancer type", fontsize=8.5, loc="right")
+    ax.set_title(f"{len(multi)} of {st['n_institutions']} source organisations\nhold > 1 cancer type", fontsize=9.5, loc="right")
     ax.tick_params(length=0)
     panel(ax, "B")
     fig.tight_layout(w_pad=2)
@@ -131,7 +133,7 @@ def fig3():
     cs_ = cen[(cen.protocol == "tuned") & (cen.optimizer == "sgd")].set_index("fm") if cen is not None else None
     fms = [f for f in FMS if f in fa.index]
     cats = [LBL[f] for f in fms]
-    fig, axes = plt.subplots(1, 3, figsize=(7.5, 3.1))
+    fig, axes = plt.subplots(1, 3, figsize=(7.5, 3.6))
     for k, (metric, name) in enumerate([("acc", "Accuracy (%)"), ("bacc", "Balanced accuracy (%)")]):
         ser = [("FL, Adam (fixed)", 100 * fa.loc[fms, metric].values, 100 * fa.loc[fms, metric + "_sd"].values, C[0])]
         if fs is not None and all(f in fs.index for f in fms):
@@ -140,14 +142,14 @@ def fig3():
             ser.append(("Central, Adam", 100 * ca.loc[fms, metric].values, 100 * ca.loc[fms, metric + "_sd"].values, C[2]))
         if cs_ is not None and all(f in cs_.index for f in fms):
             ser.append(("Central, SGD", 100 * cs_.loc[fms, metric].values, 100 * cs_.loc[fms, metric + "_sd"].values, C[3]))
-        bars(axes[k], cats, ser, ylabel=name, ylim=(0, 105), legend=False)
+        bars(axes[k], cats, ser, ylabel=name, ylim=(0, 105), legend=False, rotation=55, ticksize=8.5)
         panel(axes[k], "AB"[k])
     h_, l_ = axes[0].get_legend_handles_labels()
-    axes[0].legend(h_, l_, frameon=False, ncol=2, loc="upper left", bbox_to_anchor=(-0.05, -0.42), fontsize=7.5, handlelength=1.2, columnspacing=0.8)
+    fig.legend(h_, l_, frameon=False, ncol=4, loc="lower center", bbox_to_anchor=(0.5, 0.0), fontsize=8.5, handlelength=1.2, columnspacing=1.2)
     ax = axes[2]
     if gap is not None and len(gap):
         y = np.arange(len(fms))
-        for i, (opt, col, off, lab) in enumerate([("adam", C[0], -0.22, "FL Adam (fixed) vs central Adam"), ("adam_sel", C[3], 0.0, "FL Adam (selected) vs central Adam"), ("sgd", C[1], 0.22, "FL SGD vs central SGD")]):
+        for i, (opt, col, off, lab) in enumerate([("adam", C[0], -0.22, "Adam (fixed)"), ("adam_sel", C[3], 0.0, "Adam (selected)"), ("sgd", C[1], 0.22, "SGD")]):
             g = gap[(gap.optimizer == opt) & (gap.fm != "MEAN_PATHOLOGY")].set_index("fm")
             if not len(g): continue
             gg = g.reindex(fms)
@@ -155,10 +157,10 @@ def fig3():
                         fmt="o", color=col, ecolor=col, ms=4, capsize=2, elinewidth=1, label=lab)
         ax.set_yticks(y); ax.set_yticklabels(cats); ax.invert_yaxis()
         ax.axvline(0, color=INK2, linewidth=0.6)
-        ax.set_xlabel("Centralized − FL (pp)"); grid(ax, "x")
-        ax.legend(frameon=False, loc="upper center", bbox_to_anchor=(0.3, -0.28), ncol=1, fontsize=8)
+        ax.set_xlim(right=max(100 * gap[gap.fm != "MEAN_PATHOLOGY"].hi.max() * 1.45, 60)); ax.set_xlabel("Centralized − FL (pp)"); grid(ax, "x")
+        ax.legend(frameon=False, loc="upper right", fontsize=8, handlelength=1.2, borderaxespad=0.2)
     panel(ax, "C")
-    fig.tight_layout(w_pad=1.5)
+    fig.tight_layout(w_pad=1.5, rect=[0, 0.07, 1, 1])
     save(fig, "fig3_fm_comparison")
 
 
@@ -167,7 +169,7 @@ def fig4():
     adam, sgd, diff = load("T_main_adam"), load("T_main_sgd"), load("T_algo_vs_fedavg")
     if adam is None: return
     fig, axes = plt.subplots(1, 3, figsize=(7.5, 3.2), gridspec_kw=dict(width_ratios=[1.3, 1.3, 1.1]))
-    for k, (name, t) in enumerate([("Adam (fixed lr 3e-4)", adam), ("SGD (lr selected on validation)", sgd)]):
+    for k, (name, t) in enumerate([("Adam, fixed lr", adam), ("SGD, selected lr", sgd)]):
         ax = axes[k]
         if t is None: panel(ax, "AB"[k]); continue
         fms = [f for f in FMS if f in set(t.fm)]
@@ -175,8 +177,8 @@ def fig4():
         for i, a in enumerate(ALGOS):
             s = t[t.algorithm == a].set_index("fm").reindex(fms)
             ser.append((a, 100 * s.acc.values, 100 * s.acc_sd.values, C[i]))
-        bars(ax, [LBL[f] for f in fms], ser, ylabel="Accuracy (%)" if k == 0 else "", ylim=(0, 105), legend=(k == 0))
-        ax.set_title(name, fontsize=9); panel(ax, "AB"[k])
+        bars(ax, [LBL[f] for f in fms], ser, ylabel="Accuracy (%)" if k == 0 else "", ylim=(0, 105), legend=(k == 0), rotation=55, ticksize=8.5)
+        ax.set_title(name, fontsize=9.5); panel(ax, "AB"[k])
     ax = axes[2]
     if diff is not None and len(diff):
         yl = []; y = 0
@@ -189,7 +191,7 @@ def fig4():
                 ax.errorbar(100 * m["diff"], y, xerr=[[100 * (m["diff"] - m.lo)], [100 * (m.hi - m["diff"])]], fmt="o", color=col, ms=4, capsize=2, elinewidth=1)
                 ax.scatter(100 * d["diff"], np.full(len(d), y) + np.random.default_rng(0).uniform(-0.12, 0.12, len(d)), s=8, color=col, alpha=0.5, linewidths=0)
                 yl.append(f"{a}, {oname}"); y += 1
-        ax.set_yticks(range(len(yl))); ax.set_yticklabels(yl, fontsize=8); ax.invert_yaxis()
+        ax.set_yticks(range(len(yl))); ax.set_yticklabels(yl, fontsize=8.5); ax.invert_yaxis()
         ax.axvline(0, color=INK2, linewidth=0.6); grid(ax, "x")
         ax.set_xlabel("Δ vs FedAvg (pp)")
     panel(ax, "C")
@@ -214,10 +216,10 @@ def fig5():
             for j in range(M.shape[1]):
                 v = M[i, j]
                 if not np.isnan(v):
-                    ax.text(j, i, f"{v:.0f}", ha="center", va="center", fontsize=8, color="white" if v > 60 else INK)
-        ax.set_xticks(range(len(r))); ax.set_xticklabels([LBL[f] for f in r.index], rotation=60, ha="right", fontsize=8)
-        ax.set_yticks(range(9)); ax.set_yticklabels(CLASSES if k == 0 else [], fontsize=8)
-        ax.set_title(name, fontsize=9); ax.tick_params(length=0)
+                    ax.text(j, i, f"{v:.0f}", ha="center", va="center", fontsize=8.5 if v < 99.5 else 7.5, color="white" if v > 60 else INK)
+        ax.set_xticks(range(len(r))); ax.set_xticklabels([LBL[f] for f in r.index], rotation=60, ha="right", fontsize=8.5)
+        ax.set_yticks(range(9)); ax.set_yticklabels(CLASSES if k == 0 else [], fontsize=8.5)
+        ax.set_title(name, fontsize=9.5); ax.tick_params(length=0)
         panel(ax, "ABC"[k])
     if cs is not None and len(cs):
         binsc = ["<15", "15-29", "30-59", ">=60"]
@@ -231,10 +233,10 @@ def fig5():
                 m = [100 * dd[f"acc_{b}"].mean() for b in binsc]
                 sd = [100 * dd[f"acc_{b}"].std() for b in binsc]
                 ax.errorbar(range(4), m, yerr=sd, color=C[i], marker="o", ms=4, capsize=2, linewidth=1.5, label=a)
-            ax.set_xticks(range(4)); ax.set_xticklabels([f"{b}" for b in binsc]); ax.set_ylim(0, 105)
+            ax.set_xticks(range(4)); ax.set_xticklabels([f"{b}" for b in binsc], rotation=30, ha="right", fontsize=8.5); ax.set_ylim(0, 118)
             ax.set_xlabel("Client training slides"); ax.set_ylabel("Per-client accuracy (%)" if k == 0 else "")
-            ax.set_title("Adam" if opt == "adam" else "SGD", fontsize=9); grid(ax)
-            if k == 0: ax.legend(frameon=False, fontsize=7.5)
+            ax.set_title("Adam" if opt == "adam" else "SGD", fontsize=9.5); grid(ax)
+            if k == 0: ax.legend(frameon=False, fontsize=8, ncol=2, loc="upper left", handlelength=1.2, columnspacing=0.8)
             panel(ax, "DE"[k])
         ax = fig.add_subplot(gs[1, 2])
         d = cs[cs.fm != "ResNet50"]
@@ -247,7 +249,7 @@ def fig5():
                                alpha=0.85, linewidths=0, label=LBL[fm] if i == 0 else None)
         ax.set_yticks(range(4)); ax.set_yticklabels(ALGOS); ax.invert_yaxis(); ax.axvline(0, color=INK2, linewidth=0.6)
         ax.set_xlabel("Spearman ρ (blue Adam, orange SGD)"); grid(ax, "x")
-        ax.legend(frameon=False, fontsize=8, ncol=3, loc="upper center", bbox_to_anchor=(0.5, -0.32), handletextpad=0.2, columnspacing=0.8)
+        ax.legend(frameon=False, fontsize=8.5, ncol=3, loc="upper center", bbox_to_anchor=(0.5, -0.32), handletextpad=0.2, columnspacing=0.8)
         panel(ax, "F")
     fig.tight_layout(h_pad=2, w_pad=1.2)
     save(fig, "fig5_per_class_clientsize")
@@ -271,8 +273,8 @@ def fig6():
                         elinewidth=0.9, capsize=1.5, label=lab)
         ax.axvline(0.5, color=INK2, linewidth=0.6, linestyle=(0, (2, 2)))
         ax.set_yticks(y); ax.set_yticklabels([LBL[f] for f in fms] if k == 0 else []); ax.invert_yaxis()
-        ax.set_xlim(0.35, 0.85); ax.set_xlabel("Patient-level C-index" if k == 1 else ""); ax.set_title(cancer, fontsize=9); grid(ax, "x")
-        if k == 1: ax.legend(frameon=False, fontsize=7, loc="upper center", bbox_to_anchor=(0.5, -0.3), ncol=3)
+        ax.set_xlim(0.35, 0.85); ax.set_xticks([0.4, 0.6, 0.8]); ax.tick_params(axis="x", labelsize=8); ax.set_xlabel("Patient-level C-index" if k == 1 else ""); ax.set_title(cancer, fontsize=9.5); grid(ax, "x")
+        if k == 1: ax.legend(frameon=False, fontsize=8.5, loc="upper center", bbox_to_anchor=(0.5, -0.3), ncol=3)
         panel(ax, "ABC"[k])
     ax = fig.add_subplot(gs[1, :])
     P2 = P.copy(); P2["lab"] = P2.fm.map(LBL)
@@ -285,9 +287,9 @@ def fig6():
     ax.axhline(0, color=INK2, linewidth=0.6)
     for cancer in ["BRCA", "COAD", "STAD"]:
         idx = np.where(P2.cancer == cancer)[0]
-        ax.text(idx.mean(), 0.27, cancer, ha="center", va="top", fontsize=8, color=INK2)
+        ax.text(idx.mean(), 0.27, cancer, ha="center", va="top", fontsize=8.5, color=INK2)
         if idx[0] > 0: ax.axvline(idx[0] - 0.5, color=GRID, linewidth=0.6)
-    ax.set_xticks(x); ax.set_xticklabels(P2.lab, rotation=60, ha="right", fontsize=7)
+    ax.set_xticks(x); ax.set_xticklabels(P2.lab, rotation=60, ha="right", fontsize=8.5)
     ax.set_ylabel("FL − centralized (pooled)\nC-index, 95% CI"); ax.set_ylim(-0.3, 0.3); grid(ax)
     ax.text(-0.045, 1.06, "D", transform=ax.transAxes, fontsize=13, fontweight="bold", va="top", ha="left")
     fig.tight_layout(h_pad=2.5)
@@ -300,14 +302,9 @@ def fig7():
     fig, axes = plt.subplots(1, 4, figsize=(7.5, 3.0))
     ax = axes[0]
     if sel is not None and len(sel):
-        # raw seeds for the strip
-        import glob
-        rows = []
-        for f in glob.glob(str(REV / "results" / "cls" / "selection" / "UNI_v2" / "*.json")):
-            j = json.load(open(f)); c = j["config"]
-            if c["algorithm"] == "FedAvg" and c["optimizer"] == "adam":
-                rows.append((c["sampling"], j["test"]["accuracy"], j["rounds_run"]))
-        R = pd.DataFrame(rows, columns=["sampling", "acc", "rounds"])
+        # raw seeds for the strip: per-run accuracies from the archived predictions (T_runs.csv), the same source as the tables
+        runs = load("T_runs")
+        R = runs[(runs.grid == "selection") & (runs.fm == "UNI_v2") & (runs.algorithm == "FedAvg") & (runs.optimizer == "adam")][["sampling", "acc", "rounds"]]
         pols = [p for p in ["stratified", "uniform", "ucb", "pathology_aware"] if p in set(R.sampling)]
         names = {"stratified": "Stratified", "uniform": "Uniform", "ucb": "UCB1", "pathology_aware": "PathologyAware"}
         selt = load("T_selection")
@@ -317,9 +314,9 @@ def fig7():
             ax.errorbar(i, v.mean(), yerr=v.std(ddof=1), fmt="_", color=INK, ms=14, capsize=4, elinewidth=1.2)
             reach = selt[(selt.fm == "UNI_v2") & (selt.sampling == p)].reach80 if selt is not None and "reach80" in selt.columns else None
             lab = (f"{int(round(float(reach.iloc[0]) * len(v)))}/{len(v)}" if reach is not None and len(reach) else f"n={len(v)}")
-            ax.text(i, 103.5, lab, ha="center", va="top", fontsize=7, color=INK2)
+            ax.text(i, 103.5, lab, ha="center", va="top", fontsize=7.5, color=INK2)
         ax.set_ylim(55, 105)
-        ax.set_xticks(range(len(pols))); ax.set_xticklabels([names[p] for p in pols], fontsize=7, rotation=30, ha="right")
+        ax.set_xticks(range(len(pols))); ax.set_xticklabels([names[p] for p in pols], fontsize=8.5, rotation=30, ha="right")
         ax.set_ylabel("Test accuracy (%), UNI v2"); grid(ax)
     panel(ax, "A")
     for k, (t, hp, name, log) in enumerate([(mu, "mu", "FedProx μ", True), (lr, "lr", "Adam learning rate", True), (part, "k", "Clients per round", False)]):
@@ -329,11 +326,11 @@ def fig7():
         if hp == "k": d["k"] = d["k"].replace(-1, 107)
         g = d.groupby(hp).agg(val=("val", "mean"), acc=("acc", "mean"), acc_sd=("acc", "std")).reset_index()
         x = np.log10(g[hp]) if log else np.arange(len(g))
-        ax.plot(x, 100 * g.val, "-o", color=C[0], ms=4, label="validation (selection)")
+        ax.plot(x, 100 * g.val, "-o", color=C[0], ms=4, label="validation")
         ax.errorbar(x, 100 * g.acc, yerr=100 * g.acc_sd, fmt="-s", color=C[1], ms=4, capsize=2, label="test")
         ax.set_xticks(x); ax.set_xticklabels([f"{v:g}" for v in g[hp]], fontsize=8)
         ax.set_xlabel(name); ax.set_ylim(40, 100); grid(ax)
-        if k == 0: ax.legend(frameon=False, fontsize=8, loc="lower right")
+        if k == 0: ax.legend(frameon=False, fontsize=8, loc="lower right", handlelength=1.4)
         ax.set_ylabel("Accuracy (%), mean over FMs" if k == 0 else "")
         panel(ax, "BCD"[k])
     fig.tight_layout(w_pad=1.0)
@@ -345,8 +342,7 @@ def fig8():
     t = load("T_partition")
     if t is None or not len(t): return
     parts = ["project_tss", "institution", "labelskew_0.1", "labelskew_1.0", "iid"]
-    names = {"project_tss": "Project_TSS\n(1 class/client)", "institution": "Institution\n(58 clients)",
-             "labelskew_0.1": "Label skew\nα=0.1", "labelskew_1.0": "Label skew\nα=1.0", "iid": "IID"}
+    names = {"project_tss": "Project_TSS", "institution": "Institution", "labelskew_0.1": "Label skew α=0.1", "labelskew_1.0": "Label skew α=1.0", "iid": "IID"}
     algos = [a for a in ["FedAvg", "FedProx"] if a in set(t.algorithm)]
     fig, axes = plt.subplots(1, len(algos), figsize=(3.6 * len(algos), 3.0), squeeze=False)
     for k, a in enumerate(algos):
@@ -358,9 +354,9 @@ def fig8():
             dd = d[d.fm == fm].set_index("partition").reindex(ps)
             ax.errorbar(np.arange(len(ps)) + (i - (len(fms) - 1) / 2) * 0.12, 100 * dd.acc, yerr=100 * dd.acc_sd,
                         fmt="o", color=C[i], ms=4, capsize=2, label=LBL[fm])
-        ax.set_xticks(range(len(ps))); ax.set_xticklabels([names[p] for p in ps], fontsize=7.5)
-        ax.set_ylabel("Test accuracy (%)" if k == 0 else ""); ax.set_ylim(40, 100); ax.set_title(a, fontsize=9); grid(ax)
-        if k == 0: ax.legend(frameon=False, fontsize=7.5, loc="lower right")
+        ax.set_xticks(range(len(ps))); ax.set_xticklabels([names[p] for p in ps], fontsize=8.5, rotation=25, ha="right")
+        ax.set_ylabel("Test accuracy (%)" if k == 0 else ""); ax.set_ylim(40, 100); ax.set_title(a, fontsize=9.5); grid(ax)
+        if k == 0: ax.legend(frameon=False, fontsize=8.5, loc="lower right")
         panel(ax, "AB"[k])
     fig.tight_layout(w_pad=1.5)
     save(fig, "fig8_partitions")
@@ -391,7 +387,7 @@ def fig9():
             ser.append((name, 100 * g.r.values, 100 * g.sd.values, C[i]))
         if ser:
             bars(ax, [LBL[f] for f in fms], ser, ylabel="Recall on CPTAC (%)" if k == 0 else "", ylim=(0, 112), legend=(k == 0))
-        ax.set_title({"luad": "CPTAC-LUAD (244 slides) → LUAD class", "pda": "CPTAC-PDA (169 slides) → PAAD class"}[coh], fontsize=8.5)
+        ax.set_title({"luad": "CPTAC-LUAD (244 slides) → LUAD class", "pda": "CPTAC-PDA (169 slides) → PAAD class"}[coh], fontsize=9.5)
         panel(ax, "AB"[k])
     fig.tight_layout(w_pad=1.5)
     save(fig, "fig9_external")
@@ -419,8 +415,8 @@ def figS_convergence():
             ax.plot(x, 100 * M.mean(0), color=C[i], linewidth=1.4, label=a)
             ax.fill_between(x, 100 * (M.mean(0) - M.std(0)), 100 * (M.mean(0) + M.std(0)), color=C[i], alpha=0.15, linewidth=0)
         ax.set_xlabel("Communication round"); ax.set_ylabel("Validation accuracy (%)" if k == 0 else ""); ax.set_ylim(0, 100)
-        ax.set_title(f"UNI v2, {name}", fontsize=9); grid(ax)
-        if k == 0: ax.legend(frameon=False, fontsize=7.5, loc="lower right")
+        ax.set_title(f"UNI v2, {name}", fontsize=9.5); grid(ax)
+        if k == 0: ax.legend(frameon=False, fontsize=8.5, loc="upper left")
         panel(ax, "AB"[k])
     fig.tight_layout(w_pad=1.5)
     save(fig, "figS_convergence")
@@ -442,7 +438,7 @@ def figS_controls():
                 if dd.acc.isna().all(): continue
                 ser.append((name, 100 * dd.acc.values, 100 * dd.acc_sd.values, C[i]))
             bars(ax, [LBL[f] for f in fms], ser, ylabel="Accuracy (%)" if k == 0 else "", ylim=(0, 105), legend=(k == 0))
-            ax.set_title("FedAvg" if kind == "fl" else "Centralized", fontsize=9); panel(ax, "AB"[k])
+            ax.set_title("FedAvg" if kind == "fl" else "Centralized", fontsize=9.5); panel(ax, "AB"[k])
     ax = axes[2]
     lin2 = load("T_linear2"); adam = load("T_main_adam"); c2 = load("T_controls2")
     if lin is not None and lin2 is not None and adam is not None and c2 is not None:
@@ -452,7 +448,7 @@ def figS_controls():
                ("MLP, standardised, SGD", *[100 * c2[(c2.algorithm == "FedAvg") & (c2.optimizer == "sgd")].set_index("fm").reindex(fms)[c].values for c in ("acc", "acc_sd")], C[2]),
                ("linear, standardised, SGD", *[100 * lin2[(lin2.kind == "fl") & (lin2.optimizer == "sgd")].set_index("fm").reindex(fms)[c].values for c in ("acc", "acc_sd")], C[3])]
         bars(ax, [LBL[f] for f in fms], ser, ylabel="", ylim=(0, 105))
-        ax.set_title("FedAvg: head and features", fontsize=9)
+        ax.set_title("FedAvg: head and features", fontsize=9.5)
     panel(ax, "C")
     fig.tight_layout(w_pad=1.2, h_pad=2.5)
     save(fig, "figS_controls_linear")
@@ -471,9 +467,9 @@ def figS_confusion():
         ax.imshow(Mn, cmap=SEQ, vmin=0, vmax=100)
         for i in range(9):
             for j in range(9):
-                if Mn[i, j] >= 5: ax.text(j, i, f"{Mn[i, j]:.0f}", ha="center", va="center", fontsize=8, color="white" if Mn[i, j] > 60 else INK)
-        ax.set_xticks(range(9)); ax.set_xticklabels(CLASSES, rotation=90, fontsize=8); ax.set_yticks(range(9))
-        ax.set_yticklabels(CLASSES if k % ncol == 0 else [], fontsize=8); ax.set_title(key.split("|")[0].replace("-", ", "), fontsize=9)
+                if Mn[i, j] >= 5: ax.text(j, i, f"{Mn[i, j]:.0f}", ha="center", va="center", fontsize=8.5, color="white" if Mn[i, j] > 60 else INK)
+        ax.set_xticks(range(9)); ax.set_xticklabels(CLASSES, rotation=90, fontsize=8.5); ax.set_yticks(range(9))
+        ax.set_yticklabels(CLASSES if k % ncol == 0 else [], fontsize=8.5); ax.set_title(key.split("|")[0].replace("-", ", "), fontsize=9.5)
         ax.tick_params(length=0)
         if k % ncol == 0: ax.set_ylabel("True class")
         ax.set_xlabel("Predicted")
@@ -495,7 +491,7 @@ def figS_legacy():
         if d.acc.isna().all(): continue
         ser.append((name, 100 * d.acc.values, 100 * d.acc_sd.values, C[i]))
     bars(ax, [LBL[f] for f in fms], ser, ylabel="Accuracy (%)", ylim=(0, 105))
-    ax.legend(frameon=False, fontsize=6.5, ncol=2, loc="upper left")
+    ax.legend(frameon=False, fontsize=8, ncol=2, loc="upper left")
     fig.tight_layout()
     save(fig, "figS_legacy_batching")
 
@@ -505,21 +501,24 @@ def figS_clientsize_fm():
     if cs is None or not len(cs): return
     binsc = ["<15", "15-29", "30-59", ">=60"]
     fms = [f for f in FMS if f in set(cs.fm)]
-    fig, axes = plt.subplots(2, len(fms), figsize=(1.6 * len(fms), 4.4), sharey=True, squeeze=False)
-    for r_, opt in enumerate(["adam", "sgd"]):
-        for c_, fm in enumerate(fms):
-            ax = axes[r_, c_]
+    ncol = 4; per_opt = int(np.ceil(len(fms) / ncol))               # two rows of four panels per optimiser
+    fig, axes = plt.subplots(2 * per_opt, ncol, figsize=(7.2, 2.0 * 2 * per_opt), sharey=True, squeeze=False)
+    for o_, opt in enumerate(["adam", "sgd"]):
+        for k, fm in enumerate(fms):
+            ax = axes[o_ * per_opt + k // ncol, k % ncol]
             d = cs[(cs.optimizer == opt) & (cs.fm == fm)]
             for i, a in enumerate(ALGOS):
                 dd = d[d.algorithm == a]
                 if not len(dd): continue
                 ax.plot(range(4), [100 * dd[f"acc_{b}"].iloc[0] for b in binsc], color=C[i], marker="o", ms=3.5, linewidth=1.3, label=a)
-            ax.set_xticks(range(4)); ax.set_xticklabels(binsc, rotation=60, fontsize=8); ax.set_ylim(0, 105); grid(ax)
-            if r_ == 0: ax.set_title(LBL[fm], fontsize=9)
-            if c_ == 0: ax.set_ylabel(("Adam" if opt == "adam" else "SGD") + "\nper-client accuracy (%)")
-            if r_ == 0 and c_ == 0: ax.legend(frameon=False, fontsize=7.5, loc="lower right")
+            ax.set_xticks(range(4)); ax.set_xticklabels(binsc, rotation=45, fontsize=8.5); ax.set_ylim(0, 105); grid(ax)
+            ax.set_title(f"{LBL[fm]}, {'Adam' if opt == 'adam' else 'SGD'}", fontsize=9.5)
+            if k % ncol == 0: ax.set_ylabel("Per-client accuracy (%)")
+            if o_ == 0 and k == 0: ax.legend(frameon=False, fontsize=8.5, loc="lower right")
+        for k in range(len(fms), per_opt * ncol):                      # unused slots
+            axes[o_ * per_opt + k // ncol, k % ncol].axis("off")
     fig.supxlabel("Client training slides", fontsize=10)
-    fig.tight_layout()
+    fig.tight_layout(h_pad=1.2, w_pad=1.0)
     save(fig, "figS_clientsize_fm")
 
 
@@ -529,8 +528,8 @@ def fig1():
     fig, ax = plt.subplots(figsize=(7.2, 4.3)); ax.set_xlim(0, 100); ax.set_ylim(0, 48); ax.axis("off")
     def box(x, y, w, h, title, lines, col):
         ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.3,rounding_size=1.0", linewidth=1.0, edgecolor=col, facecolor=col + "14"))
-        ax.text(x + w / 2, y + h - 1.4, title, ha="center", va="top", fontsize=9, fontweight="bold", color=INK)
-        ax.text(x + w / 2, y + h - 5.8, lines, ha="center", va="top", fontsize=8, color=INK2, linespacing=1.35)
+        ax.text(x + w / 2, y + h - 1.4, title, ha="center", va="top", fontsize=9.5, fontweight="bold", color=INK)
+        ax.text(x + w / 2, y + h - 5.8, lines, ha="center", va="top", fontsize=8.5, color=INK2, linespacing=1.35)
     def arrow(x0, x1, y):
         ax.add_patch(FancyArrowPatch((x0, y), (x1, y), arrowstyle="-|>", mutation_scale=11, linewidth=1.0, color=INK2))
     for x, letter in [(0.5, "A"), (34.5, "B"), (68.5, "C")]:

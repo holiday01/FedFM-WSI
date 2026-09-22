@@ -196,9 +196,9 @@ def main():
             rec["grid"] = args.grid
             json.dump(rec, open(OUT / args.grid / fm / f"{k}.json", "w"))
             np.savez_compressed(OUT / args.grid / fm / f"{k}_pred.npz", **pred)
-            if args.save_ckpt:
-                torch.save({kk: v.half().cpu() if v.is_floating_point() else v.cpu()
-                            for kk, v in state.items()}, OUT / args.grid / fm / f"{k}.pt")
+            if args.save_ckpt:                                             # [v2-13] full-precision weights (checkpoints
+                torch.save({kk: v.detach().cpu() for kk, v in state.items()},   # written before 2026-09-22 are float16)
+                           OUT / args.grid / fm / f"{k}.pt")
             t = rec["test"]
             extra = f"rounds={rec.get('rounds_run')} best@{rec.get('best_round', rec.get('best_epoch'))}"
             name = getattr(cfg, "algorithm", "central-" + getattr(cfg, "protocol", ""))

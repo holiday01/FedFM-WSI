@@ -16,6 +16,19 @@ Uncertainty (v2):
   * in addition, the paired per-seed differences (seed i vs seed i) are summarised as
     mean, s.d. and a t-interval (n = 5);
   * the conditional patient-only bootstrap (v1) is kept as *_pat columns.
+
+Prediction source:
+  * EVERY test metric (accuracy, balanced accuracy, macro-F1, per-class recall, confusion
+    matrix, per-client accuracy, per-training-client macro accuracy) is recomputed here from
+    the archived per-slide predictions of each run (<key>_pred.npz), the same arrays the
+    bootstrap resamples, so tables, figures and intervals share one source.  Runs archived
+    before 2026-09-22 store float16 class probabilities only; their class is the argmax of
+    those probabilities.  Later runs also store the integer class assigned at evaluation
+    (`pred`), which is used when present.
+  * The training-time metrics recorded in the run JSON (float32 logits) are kept as
+    *_json columns and compared in T_prediction_source_audit.csv /
+    T_prediction_source_summary.csv; `best_val` (the validation monitor) comes from the JSON
+    because validation predictions are not archived.
 """
 import json, sys, glob
 from pathlib import Path
@@ -46,6 +59,39 @@ for s in samples:
     if s["split"] == "train":
         train_size[s["client_id"]] += 1
 MANIFEST = {}
+from fedfm.metrics import classification_metrics
+from fedfm.partitions import client_assignment
+client_id_of = np.array([s["client_id"] for s in samples])
+_CLIENT_OF = {}
+
+
+def client_of_partition(partition):
+    if partition not in _CLIENT_OF:
+        _CLIENT_OF[partition] = np.array(client_assignment(samples, partition))
+    return _CLIENT_OF[partition]
+
+
+def archived_predictions(json_path):
+    """(test_idx, predicted class) of a run from its archived prediction file."""
+    p = np.load(json_path.replace(".json", "_pred.npz"))
+    idx = p["test_idx"]
+    pred = p["pred"].astype(int) if "pred" in p.files else p["probs"].astype(np.float32).argmax(1)
+    return idx, pred
+
+
+def archived_metrics(json_path, partition, is_fl):
+    """Test metrics recomputed from the archived predictions with the same function the engine
+    uses at training time; per-training-client macro accuracy uses the run's own partition."""
+    idx, pred = archived_predictions(json_path)
+    y = label_of[idx]
+    met = classification_metrics(y, pred, client_id_of[idx])
+    if is_fl:
+        co = client_of_partition(partition)[idx]
+        by = defaultdict(lambda: [0, 0])
+        for c, t, pr in zip(co, y, pred):
+            by[c][0] += int(t == pr); by[c][1] += 1
+        met["per_train_client_macro_accuracy"] = float(np.mean([v[0] / v[1] for v in by.values()]))
+    return met
 
 
 def load_all():
@@ -53,9 +99,13 @@ def load_all():
     for f in sorted(RES.glob("*/*/*.json")):
         j = json.load(open(f))
         c = j["config"]
-        t = j["test"]
+        tj = j["test"]                                                   # training-time (float32) evaluation
+        kind = "central" if "protocol" in c else "fl"
+        t = archived_metrics(str(f), c.get("partition", "project_tss"), kind == "fl")   # archived predictions
+        n_changed = int(np.abs(np.array(t["confusion"]) - np.array(tj["confusion"])).sum() // 2)
         r = dict(grid=j.get("grid", f.parts[-3]), fm=f.parts[-2], key=j["key"], path=str(f),
-                 kind="central" if "protocol" in c else "fl",
+                 kind=kind, acc_json=tj["accuracy"], bacc_json=tj["balanced_accuracy"], f1_json=tj["macro_f1"],
+                 n_changed_predictions=n_changed,
                  algorithm=c.get("algorithm", "central-" + c.get("protocol", "")),
                  optimizer=c.get("optimizer", "adam"), lr=c["lr"], mu=c.get("mu"),
                  k=c.get("clients_per_round", -1), sampling=c.get("sampling"),
@@ -68,6 +118,7 @@ def load_all():
                  best_round=j.get("best_round", j.get("best_epoch")), n_params=j["n_params"],
                  total_steps=j.get("total_local_steps", j.get("total_steps")),
                  seconds=j["seconds"], recall=t["per_class_recall"], confusion=t["confusion"],
+                 recall_LUAD=t["per_class_recall"][4], recall_PAAD=t["per_class_recall"][8],
                  per_client=t.get("per_client"), n_clients=j.get("n_clients"),
                  partition_summary=j.get("partition_summary"),
                  coverage=j.get("coverage_history"), sel_counts=j.get("selection_counts"), val_hist=j.get("val_history"))
@@ -173,6 +224,14 @@ def main():
     S = {}
     E = lambda: df.iloc[0:0]
 
+    # 0. per-run table (used by the figures) and the prediction-source audit
+    df["acc_shift_pp"] = 100 * (df.acc - df.acc_json)
+    df[["grid", "fm", "key", "kind", "algorithm", "optimizer", "lr", "mu", "k", "sampling", "partition", "ft", "arch",
+        "legacy_drop_last", "protocol", "seed", "best_val", "acc", "bacc", "f1", "macro", "train_macro", "rounds", "best_round",
+        "acc_json", "bacc_json", "f1_json", "n_changed_predictions", "acc_shift_pp", "recall_LUAD", "recall_PAAD"]].to_csv(OUT / "T_runs.csv", index=False)
+    print(f"prediction-source audit: {int((df.n_changed_predictions > 0).sum())} of {len(df)} runs differ from the training-time "
+          f"confusion matrix; max |shift| {df.acc_shift_pp.abs().max():.4f} pp")
+
     # 1. main protocol (Adam 3e-4 fixed, as in the legacy code)
     main = df[df.grid == "main"]
     t = summ(main, ["fm", "algorithm"]); t.to_csv(OUT / "T_main_adam.csv", index=False); S["main_adam"] = t.to_dict("records")
@@ -224,6 +283,27 @@ def main():
                 gaps.append(r)
             gaps.append(dict(fm="MEAN_PATHOLOGY", optimizer=name, diff=mean_ci[0], lo=mean_ci[1], hi=mean_ci[2]))
         pd.DataFrame(gaps).to_csv(OUT / "T_fl_gap.csv", index=False); S["fl_gap"] = gaps
+
+    # 3b. prediction-source audit for the cells of the main tables (mean over seeds of archived - training-time accuracy)
+    aud = []
+    for name, sub, by in [("T_main_adam", main, ["fm", "algorithm"]), ("T_main_adam_sel", adam_sel, ["fm", "algorithm"]),
+                          ("T_main_sgd", sel, ["fm", "algorithm"]), ("T_central", tuned, ["fm", "optimizer"])]:
+        if not len(sub): continue
+        for keys, g in sub.groupby(by):
+            aud.append(dict(table=name, fm=keys[0], setting=keys[1], n_runs=len(g), affected_runs=int((g.n_changed_predictions > 0).sum()),
+                            mean_shift_pp=float(g.acc_shift_pp.mean()), max_abs_run_shift_pp=float(g.acc_shift_pp.abs().max())))
+    aud = pd.DataFrame(aud); aud.to_csv(OUT / "T_prediction_source_audit.csv", index=False)
+    pa = aud[aud.fm != "ResNet50"]
+    cell_key = ["grid", "fm", "algorithm", "optimizer", "lr", "mu", "k", "sampling", "partition", "ft", "arch", "legacy_drop_last", "protocol"]
+    anyc = df.fillna({"mu": -1, "k": -1, "sampling": "", "partition": "", "protocol": ""}).groupby(cell_key, dropna=False).acc_shift_pp.mean()
+    worst = anyc.abs().idxmax()
+    pd.DataFrame([dict(n_runs=len(df), runs_confusion_differs=int((df.n_changed_predictions > 0).sum()),
+                       max_abs_cell_shift_any_table_pp=float(anyc.abs().max()), worst_cell=" ".join(str(x) for x in worst[:5]),
+                       max_abs_cell_shift_any_table_pathology_pp=float(anyc[[k for k in anyc.index if k[1] != "ResNet50"]].abs().max()),
+                       runs_accuracy_differs=int((df.acc_shift_pp.abs() > 1e-9).sum()),
+                       max_abs_run_shift_pp=float(df.acc_shift_pp.abs().max()), max_changed_predictions=int(df.n_changed_predictions.max()),
+                       max_abs_cell_shift_pathology_pp=float(pa.mean_shift_pp.abs().max()), max_abs_cell_shift_all_pp=float(aud.mean_shift_pp.abs().max()),
+                       cells=len(aud), cells_affected=int((aud.affected_runs > 0).sum()))]).to_csv(OUT / "T_prediction_source_summary.csv", index=False)
 
     # 4. algorithm vs FedAvg
     diffs = []
