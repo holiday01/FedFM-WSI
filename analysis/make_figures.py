@@ -447,7 +447,7 @@ def figS_controls():
                 dd = d[d.ft == ft].set_index("fm").reindex(fms)
                 if dd.acc.isna().all(): continue
                 ser.append((name, 100 * dd.acc.values, 100 * dd.acc_sd.values, C[i]))
-            bars(ax, [LBL[f] for f in fms], ser, ylabel="Accuracy (%)" if k == 0 else "", ylim=(0, 105), legend=(k == 0))
+            bars(ax, [LBL[f] for f in fms], ser, ylabel="Accuracy (%)" if k == 0 else "", ylim=(0, 105), legend=(k == 0), rotation=45, ticksize=9)
             ax.set_title("FedAvg" if kind == "fl" else "Centralized", fontsize=9.5); panel(ax, "AB"[k])
     ax = axes[2]
     lin2 = load("T_linear2"); adam = load("T_main_adam"); c2 = load("T_controls2")
