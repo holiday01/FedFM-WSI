@@ -71,12 +71,8 @@ def client_of_partition(partition):
     return _CLIENT_OF[partition]
 
 
-def archived_predictions(json_path):
-    """(test_idx, predicted class) of a run from its archived prediction file."""
-    p = np.load(json_path.replace(".json", "_pred.npz"))
-    idx = p["test_idx"]
-    pred = p["pred"].astype(int) if "pred" in p.files else p["probs"].astype(np.float32).argmax(1)
-    return idx, pred
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from predictions import archived_predictions                     # single source rule for archived predictions
 
 
 def archived_metrics(json_path, partition, is_fl):
@@ -128,10 +124,9 @@ def load_all():
 
 
 def correctness(row):
-    p = np.load(row["path"].replace(".json", "_pred.npz"))
-    idx, probs = p["test_idx"], p["probs"].astype(np.float32)
+    idx, pred = archived_predictions(row["path"])                # same source rule as the tables
     v = np.full(len(samples), np.nan)
-    v[idx] = (probs.argmax(1) == label_of[idx]).astype(float)
+    v[idx] = (pred == label_of[idx]).astype(float)
     return v[test_idx_all]
 
 
@@ -205,13 +200,11 @@ def select_by_val(df, by, hp):
 
 def mean_recall(df):
     R = np.array([[np.nan if x is None else x for x in r] for r in df["recall"]])
-    return np.nanmean(R, axis=0), np.nanstd(R, axis=0)
+    return np.nanmean(R, axis=0), np.nanstd(R, axis=0, ddof=1)      # sample s.d. across seeds, as everywhere
 
 
 def train_client_macro_from_pred(row, client_of):
-    p = np.load(row["path"].replace(".json", "_pred.npz"))
-    idx, probs = p["test_idx"], p["probs"].astype(np.float32)
-    pred = probs.argmax(1)
+    idx, pred = archived_predictions(row["path"])                # same source rule as the tables
     by = defaultdict(lambda: [0, 0])
     for i, pr in zip(idx, pred):
         by[client_of[i]][0] += int(pr == label_of[i]); by[client_of[i]][1] += 1

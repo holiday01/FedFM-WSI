@@ -159,6 +159,11 @@ class FLRun:
         self.clients = build_clients(samples, client_of, device)
         self.batch_norm = cfg.algorithm == "FedBN"                 # BN kept local, per-client inference
         self.has_bn = cfg.algorithm in ("FedBN", "FedAvgBN")       # FedAvgBN: BN layers present but aggregated
+        if self.has_bn:                                            # [v2-14] BatchNorm cannot train on a single slide
+            tiny = [c.cid for c in self.clients if c.n_train < 2]
+            if tiny:
+                raise ValueError(f"{cfg.algorithm}: batch normalisation needs at least two training slides per client; "
+                                 f"{len(tiny)} client(s) have one ({tiny[:3]})")
         self.model = make_model(cfg, self.X.shape[1], self.has_bn).to(device)
         self.bn_keys = self.model.bn_keys() if self.batch_norm else set()
         self.global_state = {k: v.detach().clone() for k, v in self.model.state_dict().items()}

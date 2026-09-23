@@ -18,6 +18,8 @@ sys.path.insert(0, str(REV / "code"))
 import numpy as np, pandas as pd, torch
 from fedfm import data as D
 from fedfm.models import MLPClassifier
+sys.path.insert(0, str(REV / "analysis"))
+from predictions import archived_predictions
 
 T = REV / "analysis" / "tables"
 FMS = ["UNI_v2", "Virchow2", "Phikon_v2", "Conch_v15", "CTransPath", "Midnight12k", "ResNet50"]
@@ -35,8 +37,7 @@ def main():
                 j = json.load(open(str(pt)[:-3] + ".json")); cfg = j["config"]
                 if cfg.get("algorithm") == "FedBN" or cfg.get("feature_transform", "raw") != "raw":
                     continue
-                z = np.load(str(pt)[:-3] + "_pred.npz"); idx = z["test_idx"]
-                archived = z["pred"].astype(int) if "pred" in z.files else z["probs"].astype(np.float32).argmax(1)
+                idx, archived = archived_predictions(str(pt)[:-3] + ".json")
                 st = torch.load(pt, map_location=dev)
                 dtypes = sorted(set(str(v.dtype) for v in st.values() if v.is_floating_point()))
                 m = MLPClassifier(X.shape[1], 9, tuple(cfg.get("hidden_dims", (512, 256))), cfg.get("dropout", 0.3), False).to(dev)

@@ -204,8 +204,29 @@ def test_results():
     check("centralized learning rate per (encoder, optimiser) is the validation argmax", ok)
 
 
+def test_guards():
+    """CPU-only: BN heads reject single-slide clients; every prediction reader follows an archived integer class."""
+    from fedfm.fl import FLConfig, FLRun
+    tiny = [{"split": sp, "label": 0, "client_id": "one"} for sp in ("train", "val", "test")]
+    ok = True
+    for alg in ("FedBN", "FedAvgBN"):
+        try:
+            FLRun(FLConfig(algorithm=alg, hidden_dims=(4,), dropout=0, class_weighting=False), torch.zeros((3, 2)), torch.zeros(3, dtype=torch.long), tiny, ["one"] * 3, "cpu"); ok = False
+        except ValueError as e:
+            ok &= "at least two training slides" in str(e)
+    check("BN heads reject a client with a single training slide", ok)
+    import tempfile
+    sys.path.insert(0, str(ROOT / "analysis"))
+    from predictions import archived_predictions
+    tmp = Path(tempfile.mkdtemp()); idx = np.arange(10); pred = np.arange(10) % 9; probs = np.eye(9, dtype=np.float32)[(pred + 1) % 9]
+    np.savez(tmp / "r_pred.npz", test_idx=idx, pred=pred, probs=probs)
+    check("archived integer class overrides the stored probabilities", (archived_predictions(tmp / "r.json")[1] == pred).all())
+    np.savez(tmp / "s_pred.npz", test_idx=idx, probs=probs)
+    check("runs without an integer class use the argmax of the probabilities", (archived_predictions(tmp / "s.json")[1] == probs.argmax(1)).all())
+
+
 if __name__ == "__main__":
-    test_metrics(); test_cox(); test_aggregation()
+    test_metrics(); test_cox(); test_aggregation(); test_guards()
     S = test_cohorts(); test_engine(S); test_results()
     print(f"\n{len(FAILS)} failures")
     sys.exit(1 if FAILS else 0)
