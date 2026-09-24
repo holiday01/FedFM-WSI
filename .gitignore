@@ -7,3 +7,4 @@ results/_superseded/
 logs/
 figures/
 *.npy
+analysis/figure_axes_audit.json

@@ -27,7 +27,7 @@ evaluation of the trained heads.
 | `scripts/` | experiment runners (`run_cls.py`, `run_surv.py`, `run_stream_*.sh`), CPTAC feature builder, external evaluation |
 | `data/` | cohort definitions (JSON, one record per slide), GDC tissue-source-site table, CPTAC manifest |
 | `results/cls/<grid>/<encoder>/` | one JSON per run (key = hash of the configuration); `results/surv/`, `results/external/` |
-| `analysis/` | aggregation (`aggregate_cls.py`, `aggregate_surv.py`, `aggregate_external.py`), cohort statistics, cost table, figures; `checkpoint_precision.py` (float16-checkpoint diagnostic); `clinical_site_diagnostic/` (archived PCA-Cox clinical-baseline / site-robustness diagnostic with its output); `tables/*.csv` are the aggregated outputs |
+| `analysis/` | aggregation (`aggregate_cls.py`, `aggregate_surv.py`, `aggregate_external.py`), cohort statistics, cost table, figures; `checkpoint_precision.py` (float16-checkpoint diagnostic); `pairwise_encoders.py` (two-level bootstrap for every pair of encoders, `tables/T_fm_pairwise.csv`); `clinical_site_diagnostic/` (archived PCA-Cox clinical-baseline / site-robustness diagnostic with its output); `tables/*.csv` are the aggregated outputs |
 | `tests/` | unit tests and invariants of the engine (`python tests/check_engine.py`) |
 
 The run JSONs, the prediction files (`*_pred.npz`) and the aggregated tables are included,
@@ -78,6 +78,7 @@ bash scripts/run_stream_v2a.sh; bash scripts/run_stream_v2b.sh; bash scripts/run
 for c in BRCA COAD STAD; do python scripts/run_surv.py --grid all --cancers $c --seeds 0 1 2 3 4; done
 python scripts/build_cptac_features.py && python scripts/eval_external.py
 python analysis/cohort_stats.py && python analysis/aggregate_cls.py && python analysis/aggregate_surv.py
+python analysis/pairwise_encoders.py                            # every pairwise encoder difference (needs aggregate_cls.py and the run JSONs)
 python analysis/aggregate_external.py && python analysis/checkpoint_precision.py   # CPTAC paired bootstrap; checkpoint diagnostic (needs *.pt)
 python analysis/cost_table.py && python analysis/make_figures.py   # figures/*.pdf
 ```

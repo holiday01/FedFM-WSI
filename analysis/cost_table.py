@@ -38,7 +38,7 @@ for fm in FMS:
 df = pd.DataFrame(rows).set_index("fm")
 df["cache_float32_MB"] = df.cache_MB / 2
 head = pd.read_csv(T / "T_cost_head.csv")
-# one row per (fm, setting): MLP FedAvg Adam/SGD, SCAFFOLD (control variates double the upload), linear head
+# one row per (fm, setting): MLP FedAvg Adam/SGD, SCAFFOLD (control variates are exchanged in both directions, doubling the traffic), linear head
 head = head.merge(df[["encoder_params_M", "tile_dim", "slide_dim", "sec_per_ktile", "cache_MB", "cache_float32_MB"]], left_on="fm", right_index=True)
 head["head_MB"] = head.n_params * 4 / 1e6
 head["MB_per_round"] = head.bytes_per_round_total / 1e6

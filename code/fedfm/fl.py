@@ -116,9 +116,10 @@ def make_model(cfg, input_dim, batch_norm):
 
 
 def transform_features(X, train_mask, cfg, device):
-    """[v2-5] feature normalisation / parameter-matched projection (FL-realisable:
-    per-dimension mean/variance are sample-weighted averages of client statistics;
-    the projection matrix is data-independent and shared through a common seed)."""
+    """[v2-5] feature normalisation / parameter-matched projection.  The simulation computes the per-dimension
+    mean and sample s.d. from the pooled training features; in FL they could be reconstructed from client-level
+    counts, sums and sums of squares (not implemented).  The projection matrix is data-independent and shared
+    through a common seed."""
     if cfg.feature_transform == "raw":
         return X
     Xt = X[train_mask]

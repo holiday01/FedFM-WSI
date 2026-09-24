@@ -49,7 +49,42 @@ def grid(ax, axis="y"):
     ax.set_axisbelow(True)
 
 
+AXES_AUDIT = {}
+
+
+def audit_axes(fig, name):
+    """[2026-09-24] Record, per panel, every data point and interval end point that is actually drawn in data
+    coordinates (lines, markers, error-bar segments, scatter points) and whether it lies inside the panel's axis
+    limits.  A point outside is clipped without any mark, so none is allowed; the result is written to
+    analysis/figure_axes_audit.json."""
+    from matplotlib.lines import Line2D
+    from matplotlib.collections import LineCollection, PathCollection
+    out = []
+    for j, ax in enumerate(fig.axes):
+        if not ax.get_visible() or ax.name != "rectilinear": continue
+        (x0, x1), (y0, y1) = sorted(ax.get_xlim()), sorted(ax.get_ylim())
+        pts = []
+        for art in list(ax.lines) + list(ax.collections):
+            if art.get_transform() != ax.transData: continue          # axhline / axvline / axes-fraction artists are not data
+            if isinstance(art, Line2D):
+                xy = np.column_stack([np.asarray(art.get_xdata(), float), np.asarray(art.get_ydata(), float)])
+            elif isinstance(art, LineCollection):
+                segs = art.get_segments(); xy = np.concatenate(segs) if len(segs) else np.empty((0, 2))
+            elif isinstance(art, PathCollection):
+                xy = np.asarray(art.get_offsets(), float)
+            else:
+                continue
+            pts.append(xy[np.isfinite(xy).all(1)] if len(xy) else xy)
+        xy = np.concatenate(pts) if pts else np.empty((0, 2))
+        eps = 1e-9 * max(1.0, abs(x1 - x0), abs(y1 - y0))
+        outside = xy[(xy[:, 0] < x0 - eps) | (xy[:, 0] > x1 + eps) | (xy[:, 1] < y0 - eps) | (xy[:, 1] > y1 + eps)] if len(xy) else xy
+        out.append({"panel": j, "title": ax.get_title(), "xlim": [x0, x1], "ylim": [y0, y1], "n_points": int(len(xy)),
+                    "n_outside": int(len(outside)), "outside_examples": outside[:5].round(4).tolist()})
+    AXES_AUDIT[name] = out
+
+
 def save(fig, name):
+    audit_axes(fig, name)
     fig.savefig(FIG / f"{name}.pdf", bbox_inches="tight")
     fig.savefig(FIG / f"{name}.png", dpi=200, bbox_inches="tight")
     plt.close(fig)
@@ -264,6 +299,10 @@ def fig5():
 def fig6():
     P = load("T_surv_paired")
     if P is None or not len(P): return
+    # one common C-index axis for A-C that contains every drawn interval (a fixed 0.35 clipped 12 COAD lower end points)
+    ends = P[["fl_lo", "central_lo", "strat_lo", "fl_hi", "central_hi", "strat_hi"]].to_numpy()
+    xlim6 = (np.floor((ends.min() - 0.02) * 20) / 20, np.ceil((ends.max() + 0.02) * 20) / 20)
+    xt6 = [t for t in (0.3, 0.5, 0.7, 0.9) if xlim6[0] <= t <= xlim6[1]]
     fig = plt.figure(figsize=(7.2, 6.6))
     top = fig.add_gridspec(1, 3, left=0.17, right=0.99, top=0.95, bottom=0.61, wspace=0.1)
     for k, cancer in enumerate(["BRCA", "COAD", "STAD"]):
@@ -278,7 +317,7 @@ def fig6():
                         elinewidth=0.9, capsize=1.5, label=lab)
         ax.axvline(0.5, color=INK2, linewidth=0.6, linestyle=(0, (2, 2)))
         ax.set_yticks(y); ax.set_yticklabels([LBL[f] for f in fms] if k == 0 else []); ax.invert_yaxis()
-        ax.set_xlim(0.35, 0.85); ax.set_xticks([0.4, 0.6, 0.8]); ax.set_xlabel("Patient-level C-index" if k == 1 else ""); ax.set_title(cancer, fontsize=10); grid(ax, "x")
+        ax.set_xlim(*xlim6); ax.set_xticks(xt6); ax.set_xlabel("Patient-level C-index" if k == 1 else ""); ax.set_title(cancer, fontsize=10); grid(ax, "x")
         if k == 0: h6, l6 = ax.get_legend_handles_labels()
         panel(ax, "ABC"[k])
     fig.legend(h6, l6, frameon=False, fontsize=9.5, loc="center", bbox_to_anchor=(0.58, 0.515), ncol=3)
@@ -395,7 +434,11 @@ def fig9():
             g = d.groupby("fm").agg(r=("recall", "mean"), sd=("recall", "std"), t=("tcga_recall", "mean")).reindex(fms)
             ser.append((name, 100 * g.r.values, 100 * g.sd.values, C[i]))
         if ser:
-            bars(ax, [LBL[f] for f in fms], ser, ylabel="Recall on CPTAC (%)" if k == 0 else "", ylim=(0, 112), legend=(k == 0), rotation=40, ticksize=9)
+            # recall is >= 0, but mean - s.d. can fall below 0 for nearly failed encoders; the axis extends below 0 so that
+            # every s.d. whisker is drawn in full (a 0 lower limit clipped 12 whisker ends, down to -7.1)
+            lo9 = min(0.0, np.floor(min(np.nanmin(m - sd) for _, m, sd, _ in ser) / 5) * 5 - 2)
+            bars(ax, [LBL[f] for f in fms], ser, ylabel="Recall on CPTAC (%)" if k == 0 else "", ylim=(lo9, 112), legend=(k == 0), rotation=40, ticksize=9)
+            ax.set_yticks([0, 20, 40, 60, 80, 100]); ax.axhline(0, color=INK2, linewidth=0.6)
         ax.set_title({"luad": "CPTAC-LUAD (244 slides) → LUAD class", "pda": "CPTAC-PDA (169 slides) → PAAD class"}[coh], fontsize=9.5)
         panel(ax, "AB"[k])
     fig.tight_layout(w_pad=1.5)
@@ -562,3 +605,7 @@ if __name__ == "__main__":
             fn()
         except Exception as e:
             import traceback; print("FAILED", fn.__name__, e); traceback.print_exc()
+    import json as _json
+    (Path(__file__).resolve().parent / "figure_axes_audit.json").write_text(_json.dumps(AXES_AUDIT, indent=1))
+    bad = {k: [(a["panel"], a["title"], a["n_outside"], a["outside_examples"][:2]) for a in v if a["n_outside"]] for k, v in AXES_AUDIT.items()}
+    print("axes audit: drawn points outside their panel limits:", {k: v for k, v in bad.items() if v} or "none")
